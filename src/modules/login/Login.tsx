@@ -12,7 +12,7 @@ import * as Yup from 'yup';
 import { authLogin } from '@app/utils/oidc-providers';
 import { Form, InputGroup } from 'react-bootstrap';
 import { Button } from '@app/styles/common';
-import ApiService from '@app/services/Api.service';
+
 
 const Login = () => {
   const [isAuthLoading, setAuthLoading] = useState(false);
@@ -69,18 +69,18 @@ const Login = () => {
 
   const { handleChange, values, handleSubmit, touched, errors } = useFormik({
     initialValues: {
-      email: '',
+      username: '',
       password: '',
     },
     validationSchema: Yup.object({
-      email: Yup.string().email('Invalid email address').required('Required'),
+      username: Yup.string().required('Required'),
       password: Yup.string()
         .min(5, 'Must be 5 characters or more')
         .max(30, 'Must be 30 characters or less')
         .required('Required'),
     }),
     onSubmit: (values) => {
-      login(values.email, values.password);
+      login(values.username, values.password);
     },
   });
 
@@ -90,9 +90,9 @@ const Login = () => {
     <div className="login-box">
       <div className="card card-outline card-primary">
         <div className="card-header text-center">
-          <Link to="/" className="h1">
-            <b>Admin</b>
-            <span>LTE</span>
+          <Link to="/" className="h3">
+            <b>Login</b>
+            {/* <span>Login</span> */}
           </Link>
         </div>
         <div className="card-body">
@@ -101,23 +101,23 @@ const Login = () => {
             <div className="mb-3">
               <InputGroup className="mb-3">
                 <Form.Control
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="Email"
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Username"
                   onChange={handleChange}
-                  value={values.email}
-                  isValid={touched.email && !errors.email}
-                  isInvalid={touched.email && !!errors.email}
+                  value={values.username}
+                  isValid={touched.username && !errors.username}
+                  isInvalid={touched.username && !!errors.username}
                 />
-                {touched.email && errors.email ? (
+                {touched.username && errors.username ? (
                   <Form.Control.Feedback type="invalid">
-                    {errors.email}
+                    {errors.username}
                   </Form.Control.Feedback>
                 ) : (
                   <InputGroup.Append>
                     <InputGroup.Text>
-                      <i className="fas fa-envelope" />
+                      <i className="fas fa-user" />
                     </InputGroup.Text>
                   </InputGroup.Append>
                 )}
@@ -169,7 +169,7 @@ const Login = () => {
               </div>
             </div>
           </form>
-          <div className="social-auth-links text-center mt-2 mb-3">
+          <div className="social-auth-links text-center mt-2 mb-3 d-none">
             <Button
               className="mb-2"
               onClick={loginByFacebook}
@@ -194,7 +194,7 @@ const Login = () => {
           <p className="mb-1">
             <Link to="/forgot-password">{t('login.label.forgotPass')}</Link>
           </p>
-          <p className="mb-0">
+          <p className="mb-0 d-none">
             <Link to="/register" className="text-center">
               {t('login.label.registerNew')}
             </Link>

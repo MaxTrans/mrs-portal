@@ -93,8 +93,8 @@ const Register = () => {
       <div className="card card-outline card-primary">
         <div className="card-header text-center">
           <Link to="/" className="h1">
-            <b>Admin</b>
-            <span>LTE</span>
+            <b>Max Trans</b>
+            {/* <span>LTE</span> */}
           </Link>
         </div>
         <div className="card-body">
@@ -198,7 +198,7 @@ const Register = () => {
               </div>
             </div>
           </form>
-          <div className="social-auth-links text-center">
+          <div className="social-auth-links text-center d-none">
             <Button
               className="mb-2"
               onClick={registerByFacebook}

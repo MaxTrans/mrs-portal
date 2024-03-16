@@ -1,13 +1,25 @@
 const config = {
     api: 'http://localhost:5107/api/',
     options: {
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', 'Authorization': ''},
     },
+  };
+
+  const getAuthHeaders = () => {
+    let authentication:any = localStorage.getItem('authentication');
+      if (authentication) {
+        authentication = JSON.parse(authentication);
+        config.options.headers.Authorization = 'Bearer ' + authentication.profile.token ;
+        return config.options;
+      }
+      else
+      return config.options;
   };
   
   const httpGet = (endpoint:string) => {
+    let options :any = getAuthHeaders();
     return fetch(`${config.api}${endpoint}`, {
-      ...config.options,
+      ...options,
     })
       .then((response) => handleResponse(response))
       .then((response) => response)
@@ -18,10 +30,11 @@ const config = {
   };
   
   const httpPost = (endpoint:string, data:any) => {
+    let options:any = getAuthHeaders();
     return fetch(`${config.api}${endpoint}`, {
       method: 'post',
-      body: data ? JSON.stringify(data) : null,
-      ...config.options,
+      body: data ? JSON.stringify(data) : null, 
+      ...options
     })
       .then((response) => handleResponse(response))
       .then((response) => response)
@@ -32,10 +45,11 @@ const config = {
   };
   
   const httpPut = (endpoint:string, data:any) => {
+    let options:any = getAuthHeaders();
     return fetch(`${config.api}${endpoint}`, {
       method: 'put',
       body: data ? JSON.stringify(data) : null,
-      ...config.options,
+      ...options,
     })
       .then((response) => handleResponse(response))
       .then((response) => response)
@@ -46,9 +60,10 @@ const config = {
   };
   
   const httpDelete = (endpoint:string, data:any) => {
+    let options:any = getAuthHeaders();
     return fetch(`${config.api}${endpoint}`, {
       method: 'delete',
-      ...config.options,
+      ...options,
     })
       .then((response) => handleResponse(response))
       .then((response) => response)

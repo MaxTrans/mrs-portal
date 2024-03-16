@@ -1,5 +1,6 @@
 import { UserManager, UserManagerSettings } from 'oidc-client-ts';
 import { sleep } from './helpers';
+import ApiService from '@app/services/Api.service';
 
 declare const FB: any;
 
@@ -60,17 +61,25 @@ export const getFacebookLoginStatus = () => {
   });
 };
 
-export const authLogin = (email: string, password: string) => {
+export const authLogin = (username: string, password: string) => {
+  
+  
   return new Promise(async (res, rej) => {
-    await sleep(500);
-    if (email === 'admin@example.com' && password === 'admin') {
-      localStorage.setItem(
-        'authentication',
-        JSON.stringify({ profile: { email: 'admin@example.com' } })
-      );
-      return res({ profile: { email: 'admin@example.com' } });
-    }
-    return rej({ message: 'Credentials are wrong!' });
+    ApiService. httpPost('Login/verifylogin', { username: username, password: password})
+    .then((response) => {
+      if(response.isSuccess)
+      {
+        localStorage.setItem(
+          'authentication',
+          JSON.stringify({ profile: response.data })
+        );
+        return res({ profile: { email: response.data.email } });
+      }
+      else
+      {
+        return rej({ message: response.message });
+      }
+    })
   });
 };
 

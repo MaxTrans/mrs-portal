@@ -17,7 +17,7 @@ const Blank = () => {
   const handleShow = () => setShow(true);
 
   const testApi = () => {
-    ApiService.httpPost('Login/login', {Username: 'test', Password: 'test'})
+    ApiService.httpGet('HelloWorld')
     .then((response) => {
         console.log(response);      
     })
