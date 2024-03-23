@@ -8,6 +8,8 @@ import Header from '@app/modules/main/header/Header';
 import MenuSidebar from '@app/modules/main/menu-sidebar/MenuSidebar';
 import Footer from '@app/modules/main/footer/Footer';
 import { Image } from '@profabric/react-components';
+import store from '@app/store/store';
+import User from '@app/store/Models/User';
 
 const Main = () => {
   const dispatch = useDispatch();
@@ -18,7 +20,7 @@ const Main = () => {
     (state: any) => state.ui.controlSidebarCollapsed
   );
   const screenSize = useSelector((state: any) => state.ui.screenSize);
-  const authentication = useSelector((state: any) => state.auth.authentication);
+  const authentication = useSelector((state: User) => store.getState().auth.isAuthenticated);
   const [isAppLoaded, setIsAppLoaded] = useState(false);
 
   const handleToggleMenuSidebar = () => {
@@ -68,13 +70,14 @@ const Main = () => {
     if (!isAppLoaded) {
       return (
         <div className="preloader flex-column justify-content-center align-items-center">
-          <Image
+          {/* <Image
             className="animation__shake"
             src="/img/logo.png"
             alt="AdminLTELogo"
             height={60}
             width={60}
-          />
+          /> */}
+          <i className="fa-solid fa-truck-fast" style={{ width:'60px', height:'60px' }}></i>
         </div>
       );
     }

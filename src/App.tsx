@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Main from '@modules/main/Main';
 import Login from '@modules/login/Login';
@@ -25,6 +25,7 @@ import {
   getAuthStatus,
   getFacebookLoginStatus,
 } from './utils/oidc-providers';
+import Intake from './pages/intake';
 
 const { VITE_NODE_ENV } = import.meta.env;
 
@@ -33,14 +34,13 @@ const App = () => {
   const screenSize = useSelector((state: any) => state.ui.screenSize);
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [isAppLoading, setIsAppLoading] = useState(true);
 
   const checkSession = async () => {
     try {
       let responses: any = await Promise.all([
-        getFacebookLoginStatus(),
-        GoogleProvider.getUser(),
         getAuthStatus(),
       ]);
 
@@ -48,6 +48,10 @@ const App = () => {
 
       if (responses && responses.length > 0) {
         dispatch(setAuthentication(responses[0]));
+      }
+      else
+      {
+          navigate('/login');
       }
     } catch (error: any) {
       console.log('error', error);
@@ -96,10 +100,11 @@ const App = () => {
         </Route>
         <Route path="/" element={<PrivateRoute />}>
           <Route path="/" element={<Main />}>
-            <Route path="/sub-menu-2" element={<Blank />} />
+            {/* <Route path="/sub-menu-2" element={<Blank />} /> */}
             <Route path="/sub-menu-1" element={<SubMenu />} />
-            <Route path="/blank" element={<Blank />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/intake" element={<Intake />} />
+            {/* <Route path="/blank" element={<Blank />} /> */}
+            {/* <Route path="/profile" element={<Profile />} /> */}
             <Route path="/" element={<Dashboard />} />
           </Route>
         </Route>

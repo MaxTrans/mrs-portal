@@ -1,4 +1,6 @@
 import { useSelector } from 'react-redux';
+import store from '../../../store/store';
+import User from '../../../store/Models/User';
 import { Link } from 'react-router-dom';
 import { MenuItem } from '@components';
 import { Image } from '@profabric/react-components';
@@ -19,28 +21,39 @@ export const MENU: IMenuItem[] = [
     icon: 'fas fa-tachometer-alt nav-icon',
     path: '/',
   },
+  // {
+  //   name: i18n.t('menusidebar.label.blank'),
+  //   icon: 'fas fa-wrench nav-icon',
+  //   path: '/blank',
+  // },
   {
-    name: i18n.t('menusidebar.label.blank'),
-    icon: 'fas fa-wrench nav-icon',
-    path: '/blank',
+    name: i18n.t('menusidebar.label.subMenu'),
+    icon: 'fas fa-hammer nav-icon',
+    path: '/sub-menu-1',
   },
   {
-    name: i18n.t('menusidebar.label.mainMenu'),
-    icon: 'far fa-caret-square-down nav-icon',
-    children: [
-      {
-        name: i18n.t('menusidebar.label.subMenu'),
-        icon: 'fas fa-hammer nav-icon',
-        path: '/sub-menu-1',
-      },
+    name: i18n.t('menusidebar.label.intake'),
+    icon: 'fas fa-clipboard nav-icon',
+    path: '/intake',
+  },
+  
+  // {
+  //   name: i18n.t('menusidebar.label.mainMenu'),
+  //   icon: 'far fa-caret-square-down nav-icon',
+  //   children: [
+  //     {
+  //       name: i18n.t('menusidebar.label.subMenu'),
+  //       icon: 'fas fa-hammer nav-icon',
+  //       path: '/sub-menu-1',
+  //     },
 
-      {
-        name: i18n.t('menusidebar.label.blank'),
-        icon: 'fas fa-cogs nav-icon',
-        path: '/sub-menu-2',
-      },
-    ],
-  },
+  //     {
+  //       name: i18n.t('menusidebar.label.blank'),
+  //       icon: 'fas fa-cogs nav-icon',
+  //       path: '/sub-menu-2',
+  //     },
+  //   ],
+  // },
 ];
 
 const StyledBrandImage = styled(Image)`
@@ -57,7 +70,7 @@ const StyledUserImage = styled(Image)`
 `;
 
 const MenuSidebar = () => {
-  const authentication = useSelector((state: any) => state.auth.authentication);
+  const authentication = useSelector((state: User) => store.getState().auth.isAuthenticated);
   const sidebarSkin = useSelector((state: any) => state.ui.sidebarSkin);
   const menuItemFlat = useSelector((state: any) => state.ui.menuItemFlat);
   const menuChildIndent = useSelector((state: any) => state.ui.menuChildIndent);
@@ -67,7 +80,7 @@ const MenuSidebar = () => {
       <Link to="/" className="brand-link">
         <StyledBrandImage
           src="/img/logo.png"
-          alt="AdminLTE Logo"
+          alt="Max Trans"
           width={33}
           height={33}
           rounded
@@ -75,28 +88,6 @@ const MenuSidebar = () => {
         <span className="brand-text font-weight-light">Max Trans</span>
       </Link>
       <div className="sidebar">
-        <div className="user-panel mt-3 pb-3 mb-3 d-flex">
-          <div className="image">
-            <StyledUserImage
-              src={authentication.profile.picture}
-              fallbackSrc="/img/default-profile.png"
-              alt="User"
-              width={34}
-              height={34}
-              rounded
-            />
-          </div>
-          <div className="info">
-            <Link to="/profile" className="d-block">
-              {authentication.profile.email}
-            </Link>
-          </div>
-        </div>
-
-        <div className="form-inline">
-          <SidebarSearch />
-        </div>
-
         <nav className="mt-2" style={{ overflowY: 'hidden' }}>
           <ul
             className={`nav nav-pills nav-sidebar flex-column${

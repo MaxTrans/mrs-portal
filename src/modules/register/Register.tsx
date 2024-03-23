@@ -12,6 +12,7 @@ import { Checkbox } from '@profabric/react-components';
 import { authLogin } from '@app/utils/oidc-providers';
 import { setAuthentication } from '@app/store/reducers/auth';
 import { Button } from '@app/styles/common';
+import User from '@app/store/Models/User';
 
 const Register = () => {
   const [isAuthLoading, setAuthLoading] = useState(false);
@@ -25,7 +26,12 @@ const Register = () => {
   const register = async (email: string, password: string) => {
     try {
       setAuthLoading(true);
-      const response = await authLogin(email, password);
+
+      const user = {} as User;
+      user.email = email;
+      user.password = password;
+
+      const response = await authLogin(user);
       dispatch(setAuthentication(response as any));
       toast.success('Registration is success');
       navigate('/');

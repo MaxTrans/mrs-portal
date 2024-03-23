@@ -1,86 +1,42 @@
-const config = {
-    api: 'http://localhost:5107/api/',
-    options: {
-      headers: { 'content-type': 'application/json', 'Authorization': ''},
-    },
-  };
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { toast } from "react-toastify";
 
-  const getAuthHeaders = () => {
-    let authentication:any = localStorage.getItem('authentication');
-      if (authentication) {
-        authentication = JSON.parse(authentication);
-        config.options.headers.Authorization = 'Bearer ' + authentication.profile.token ;
-        return config.options;
-      }
-      else
-      return config.options;
-  };
-  
-  const httpGet = (endpoint:string) => {
-    let options :any = getAuthHeaders();
-    return fetch(`${config.api}${endpoint}`, {
-      ...options,
-    })
-      .then((response) => handleResponse(response))
-      .then((response) => response)
-      .catch((error) => {
-        console.error(error);
-        throw Error(error);
-      });
-  };
-  
-  const httpPost = (endpoint:string, data:any) => {
-    let options:any = getAuthHeaders();
-    return fetch(`${config.api}${endpoint}`, {
-      method: 'post',
-      body: data ? JSON.stringify(data) : null, 
-      ...options
-    })
-      .then((response) => handleResponse(response))
-      .then((response) => response)
-      .catch((error) => {
-        console.error(error);
-        throw Error(error);
-      });
-  };
-  
-  const httpPut = (endpoint:string, data:any) => {
-    let options:any = getAuthHeaders();
-    return fetch(`${config.api}${endpoint}`, {
-      method: 'put',
-      body: data ? JSON.stringify(data) : null,
-      ...options,
-    })
-      .then((response) => handleResponse(response))
-      .then((response) => response)
-      .catch((error) => {
-        console.error(error);
-        throw Error(error);
-      });
-  };
-  
-  const httpDelete = (endpoint:string, data:any) => {
-    let options:any = getAuthHeaders();
-    return fetch(`${config.api}${endpoint}`, {
-      method: 'delete',
-      ...options,
-    })
-      .then((response) => handleResponse(response))
-      .then((response) => response)
-      .catch((error) => {
-        console.error(error);
-        throw Error(error);
-      });
-  };
-  
-  const handleResponse = (response:any) => {
-    // You can handle 400 errors as well.
-    if (response.status === 200) {
-      return response.json();
-    } else {
-      throw Error(response.json() || 'error');
-    }
-  };
-  
-  export default { httpGet, httpPost, httpPut, httpDelete };
+axios.defaults.baseURL = "http://localhost:5107/api/";
+axios.defaults.headers.common = {
+  'content-type': 'application/json',
+  'Authorization': 'Bearer '// + ${auth_token}
+};
+
+const responseData = (axiosResponse: AxiosResponse) => axiosResponse.data;
+
+axios.interceptors.response
+.use((axiosResponse: AxiosResponse) => { return axiosResponse },
+     (error: AxiosError) => { 
+        switch(error.status){
+            case 404:
+                toast.error(error.message);
+                break
+            default:
+                toast.error(error.message);
+                console.log(error);
+                break;
+        }
+
+        return Promise.reject(error.response);
+    });
+
+const requests = {
+    get: (url: string) => axios.get(url).then(responseData),
+    post:(url: string, data: any) => axios.post(url, data).then(responseData),
+    put:(url: string, data: any) => axios.put(url, data).then(responseData),
+    delete: (url: string) => axios.delete(url).then(responseData)
+}
+
+
+const APIService = {
+    requests
+}
+
+export default APIService;
+
   

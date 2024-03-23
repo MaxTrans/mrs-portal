@@ -12,6 +12,9 @@ import * as Yup from 'yup';
 import { authLogin } from '@app/utils/oidc-providers';
 import { Form, InputGroup } from 'react-bootstrap';
 import { Button } from '@app/styles/common';
+import { AxiosResponse } from 'axios';
+import User, {  IUserDTO } from '@app/store/Models/User';
+import IUser from '@app/store/Models/User';
 
 
 const Login = () => {
@@ -26,47 +29,25 @@ const Login = () => {
   const login = async (email: string, password: string) => {
     try {
       setAuthLoading(true);
-      const response = await authLogin(email, password);
-      dispatch(setAuthentication(response as any));
-      toast.success('Login is succeed!');
+
+      const userdto = {} as IUserDTO;
+      let user = {} as IUser;
+      userdto.username = email;
+      userdto.password = password;
+
+      const response = await authLogin(userdto);
+
+      user = (response as AxiosResponse).data as IUser;
+      dispatch(setAuthentication(user));
+
       setAuthLoading(false);
-      // dispatch(loginUser(token));
       navigate('/');
     } catch (error: any) {
       setAuthLoading(false);
       toast.error(error.message || 'Failed');
     }
   };
-
-  const loginByGoogle = async () => {
-    try {
-      setGoogleAuthLoading(true);
-      // const response = await GoogleProvider.signinPopup();
-      // dispatch(setAuthentication(response as any));
-      // toast.success('Login is succeeded!');
-      // setGoogleAuthLoading(false);
-      // navigate('/');
-      throw new Error('Not implemented');
-    } catch (error: any) {
-      setGoogleAuthLoading(false);
-      toast.error(error.message || 'Failed');
-    }
-  };
-
-  const loginByFacebook = async () => {
-    try {
-      setFacebookAuthLoading(true);
-      // const response = await facebookLogin();
-      // dispatch(setAuthentication(response as any));
-      // setFacebookAuthLoading(false);
-      // navigate('/');
-      throw new Error('Not implemented');
-    } catch (error: any) {
-      setFacebookAuthLoading(false);
-      toast.error(error.message || 'Failed');
-    }
-  };
-
+  
   const { handleChange, values, handleSubmit, touched, errors } = useFormik({
     initialValues: {
       username: '',
@@ -90,10 +71,7 @@ const Login = () => {
     <div className="login-box">
       <div className="card card-outline card-primary">
         <div className="card-header text-center">
-          <Link to="/" className="h3">
-            <b>Login</b>
-            {/* <span>Login</span> */}
-          </Link>
+          <h3 style={{ fontWeight: 'bolder' }}>Login</h3>
         </div>
         <div className="card-body">
           <p className="login-box-msg">{t('login.label.signIn')}</p>
@@ -162,35 +140,12 @@ const Login = () => {
                 <Button
                   loading={isAuthLoading}
                   disabled={isFacebookAuthLoading || isGoogleAuthLoading}
-                  onClick={handleSubmit as any}
-                >
+                  onClick={handleSubmit as any} >
                   {t('login.button.signIn.label')}
                 </Button>
               </div>
             </div>
           </form>
-          <div className="social-auth-links text-center mt-2 mb-3 d-none">
-            <Button
-              className="mb-2"
-              onClick={loginByFacebook}
-              loading={isFacebookAuthLoading}
-              disabled={isAuthLoading || isGoogleAuthLoading}
-            >
-              <i className="fab fa-facebook mr-2" />
-              {t('login.button.signIn.social', {
-                what: 'Facebook',
-              })}
-            </Button>
-            <Button
-              variant="danger"
-              onClick={loginByGoogle}
-              loading={isGoogleAuthLoading}
-              disabled={isAuthLoading || isFacebookAuthLoading}
-            >
-              <i className="fab fa-google mr-2" />
-              {t('login.button.signIn.social', { what: 'Google' })}
-            </Button>
-          </div>
           <p className="mb-1">
             <Link to="/forgot-password">{t('login.label.forgotPass')}</Link>
           </p>

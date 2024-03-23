@@ -126,7 +126,7 @@ const ControlSidebar = () => {
         overflowY: 'scroll',
       }}
     >
-      <h5>Customize MaxTrans</h5>
+      <h5>Customize</h5>
       <hr className="mb-2" />
 
       <div style={{ padding: '8px 0' }}>

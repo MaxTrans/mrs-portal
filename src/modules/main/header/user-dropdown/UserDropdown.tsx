@@ -11,6 +11,8 @@ import {
   UserHeader,
   UserMenuDropdown,
 } from '@app/styles/dropdown-menus';
+import store from '../../../../store/store';
+import User from '../../../../store/Models/User';
 
 declare const FB: any;
 
@@ -18,26 +20,16 @@ const UserDropdown = () => {
   const navigate = useNavigate();
   const [t] = useTranslation();
   const dispatch = useDispatch();
-  const authentication = useSelector((state: any) => state.auth.authentication);
+  const authentication = useSelector((state: User) => store.getState().auth);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const logOut = async (event: any) => {
     event.preventDefault();
     setDropdownOpen(false);
     console.log('authentication', authentication);
-    if (authentication.profile.first_name) {
-      await GoogleProvider.signoutPopup();
-      dispatch(setAuthentication(undefined));
-      navigate('/login');
-    } else if (authentication.userID) {
-      FB.logout(() => {
-        dispatch(setAuthentication(undefined));
-        navigate('/login');
-      });
-    } else {
-      dispatch(setAuthentication(undefined));
-      navigate('/login');
-    }
+    const user = {} as User;
+    dispatch(setAuthentication(user));
+    navigate('/login');
     localStorage.removeItem('authentication');
   };
 
@@ -51,7 +43,6 @@ const UserDropdown = () => {
     <UserMenuDropdown isOpen={dropdownOpen} hideArrow>
       <StyledSmallUserImage
         slot="head"
-        src={authentication.profile.picture}
         fallbackSrc="/img/default-profile.png"
         alt="User"
         width={25}
@@ -61,7 +52,6 @@ const UserDropdown = () => {
       <div slot="body">
         <UserHeader className=" bg-primary">
           <StyledBigUserImage
-            src={authentication.profile.picture}
             fallbackSrc="/img/default-profile.png"
             alt="User"
             width={90}
@@ -69,7 +59,7 @@ const UserDropdown = () => {
             rounded
           />
           <p>
-            {authentication.profile.email}
+            {authentication.email}
             <small>
               <span>Member since </span>
               <span>

@@ -1,6 +1,7 @@
 import { UserManager, UserManagerSettings } from 'oidc-client-ts';
 import { sleep } from './helpers';
 import ApiService from '@app/services/Api.service';
+import User, { IUserDTO } from '@app/store/Models/User';
 
 declare const FB: any;
 
@@ -61,11 +62,9 @@ export const getFacebookLoginStatus = () => {
   });
 };
 
-export const authLogin = (username: string, password: string) => {
-  
-  
+export const authLogin = (user: IUserDTO) => {
   return new Promise(async (res, rej) => {
-    ApiService. httpPost('Login/verifylogin', { username: username, password: password})
+    ApiService.requests.post('Login/verifylogin', user)
     .then((response) => {
       if(response.isSuccess)
       {
@@ -73,7 +72,7 @@ export const authLogin = (username: string, password: string) => {
           'authentication',
           JSON.stringify({ profile: response.data })
         );
-        return res({ profile: { email: response.data.email } });
+        return res(response);
       }
       else
       {
