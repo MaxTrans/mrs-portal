@@ -28,7 +28,7 @@ export const MENU: IMenuItem[] = [
   // },
   {
     name: i18n.t('menusidebar.label.subMenu'),
-    icon: 'fas fa-hammer nav-icon',
+    icon: 'fas fa-file-alt nav-icon',
     path: '/sub-menu-1',
   },
   {
