@@ -13,6 +13,7 @@ import {
 } from '@app/styles/dropdown-menus';
 import store from '../../../../store/store';
 import User from '../../../../store/Models/User';
+import { sleep } from '@app/utils/helpers';
 
 declare const FB: any;
 
@@ -29,8 +30,9 @@ const UserDropdown = () => {
     console.log('authentication', authentication);
     const user = {} as User;
     dispatch(setAuthentication(user));
-    navigate('/login');
     localStorage.removeItem('authentication');
+    location.href = '/';
+    //navigate('/login');
   };
 
   const navigateToProfile = (event: any) => {

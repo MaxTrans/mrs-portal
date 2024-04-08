@@ -25,7 +25,7 @@ export default function UppyUpload() {
                       showProgressDetails: true,
                       proudlyDisplayPoweredByUppy: false,
 	                    height:200,
-                      width:500,
+                      width: '100%',
                     })
                     .use(DropTarget, {
                       target: document.body,

@@ -81,11 +81,11 @@ export default function Upload(){
                     <div className="card-body">
                     
                     { !showForm && <div className="d-flex justify-content-center mb-3">
-                        <div className="upload-button-green mr-5" onClick={() => { setIsSingle(false); setShowForm(true) }}>
+                        <div className="shadow upload-button-green mr-5 pointer box" onClick={() => { setIsSingle(false); setShowForm(true) }}>
                         <PiFilesThin size={80} className="transparent-color"/>
                             Merge Upload
                         </div>   
-                        <div className="upload-button-blue px-3" onClick={() => { setIsSingle(true); setShowForm(true) }}>
+                        <div className="shadow upload-button-blue px-3 pointer box" onClick={() => { setIsSingle(true); setShowForm(true) }}>
                             <PiFileThin size={80} className="transparent-color"/>
                             Single Upload
                         </div>
