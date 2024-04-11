@@ -29,7 +29,7 @@ export const MENU: IMenuItem[] = [
   {
     name: i18n.t('menusidebar.label.subMenu'),
     icon: 'fas fa-file-alt nav-icon',
-    path: '/sub-menu-1',
+    path: '/admin-jobs',
   },
   {
     name: i18n.t('menusidebar.label.intake'),
@@ -81,7 +81,7 @@ const MenuSidebar = () => {
         <StyledBrandImage
           src="/img/logo.png"
           alt="Max Trans"
-          width={33}
+          width={33} 
           height={33}
           rounded
         />

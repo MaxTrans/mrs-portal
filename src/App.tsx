@@ -14,7 +14,7 @@ import ReactGA from 'react-ga4';
 
 import Dashboard from '@pages/Dashboard';
 import Blank from '@pages/Blank';
-import SubMenu from '@pages/SubMenu';
+import JobsList from '@app/pages/admin/JobsList';
 import Profile from '@pages/profile/Profile';
 
 import PublicRoute from './routes/PublicRoute';
@@ -101,7 +101,7 @@ const App = () => {
         <Route path="/" element={<PrivateRoute />}>
           <Route path="/" element={<Main />}>
             {/* <Route path="/sub-menu-2" element={<Blank />} /> */}
-            <Route path="/sub-menu-1" element={<SubMenu />} />
+            <Route path="/admin-jobs" element={<JobsList />} />
             <Route path="/intake" element={<Intake />} />
             {/* <Route path="/blank" element={<Blank />} /> */}
             {/* <Route path="/profile" element={<Profile />} /> */}
