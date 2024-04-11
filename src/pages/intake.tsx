@@ -135,7 +135,7 @@ export default function Upload(){
                         <Button variant="primary" className="offset-2" type="submit">
                             Submit
                         </Button>
-                        <Button variant="secondary" type="button" className="ml-3" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles())  }}>
+                        <Button variant="secondary" type="button" className="ml-3" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm();  }}>
                             Back
                         </Button>
                     </Form>)}
