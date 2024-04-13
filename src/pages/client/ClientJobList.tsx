@@ -9,50 +9,32 @@ import { toast } from 'react-toastify';
 import NorificationModal from '../Modals/Notification';
 import PageLoader from '@app/utils/loading';
 import ConfigSettings from '@app/utils/config';
+import IUser from '@app/store/Models/User';
+import store from '@app/store/store';
 import { useSelector } from 'react-redux';
-import store from '../../store/store';
-import IUser from '../../store/Models/User';
 
-
-interface Props { }
-
-interface State {
-  title: string;
-  subTitle: string;
-  gridOptions1?: GridOption;
-  gridOptions2?: GridOption;
-  columnDefinitions1: Column[];
-  columnDefinitions2: Column[];
-}
 let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
 
-
-const JobsList = () => {
-
-  const user = useSelector((state: IUser) => store.getState().auth);
-  console.log(user);
+const ClientJobList = () => {
 
   const [dataset, setData] = useState<any[]>([]);
-  const [usersList, setUsers] = useState([]);
   const [statusList, setStatus] = useState([]);
   const [fileList, setFiles] = useState([]);
   const [showloader, setLoader] = useState(true);
-
 
   // Files Modal 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-
+  const user = useSelector((state: IUser) => store.getState().auth);
 
   let selectedStatus: string = '';
-  let selectedClient: string = '';
+  let selectedClient: string = user.id;
 
   const columns: Column[] = [
-    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true , maxWidth: 100 },
-    // { id: 'name', name: 'Name', field: 'name', sortable: true },
+    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth: 100 },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
     {
       id: 'isSingleJob', name: 'Single Job', field: 'isSingleJob', sortable: true, maxWidth: 90,
@@ -61,15 +43,11 @@ const JobsList = () => {
       },
       cssClass: 'text-center text-primary'
     },
-    { id: 'AssignTo', name: 'Assign To', field: 'AssignTo', sortable: true },
-    { id: 'l1User', name: 'L1 User', field: 'l1User', sortable: true },
-    { id: 'l2User', name: 'L2 User', field: 'l2User', sortable: true },
-    { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true },
     {
       id: 'files', name: 'File', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? '<a heef="#" class="pointer">View Files</a>' : '';
+          return value.length > 0 ? '<a heef="#" class="pointer">compressed.zip</a>' : '';
         else
           return value.length > 0 ? '<a heef="#">' + value[0].FileName + '</a>' : '';
       },
@@ -84,7 +62,6 @@ const JobsList = () => {
         }
       }
     },
-    { id: 'userName', name: 'Client', field: 'userName' },
     { id: 'statusName', name: 'Status', field: 'statusName', },
     { id: 'createdDateTime', name: 'Created Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso },
     {
@@ -109,50 +86,22 @@ const JobsList = () => {
       cssClass: 'text-primary',
       onCellClick: (_e: any, args: OnEventArgs) => {
         getNotifications(args.dataContext.id);
-        // reactGrid.gridService.highlightRow(args.row, 1500);
-        // reactGrid.gridService.setSelectedRow(args.row);
       },
     },
     {
-      id: 'action',
-      name: '',
+      id: 'delete',
       field: 'id',
-      maxWidth: 100,
-      formatter: () => `<div class="btn btn-default btn-xs">Action <i class="fa fa-caret-down"></i></div>`,
-      cellMenu: {
-        //commandTitle: 'Commands',
-        // width: 200,
-        commandItems: [
-          {
-            command: 'upload',
-            title: 'Upload File',
-            iconCssClass: 'fa fa-upload text-success',
-            positionOrder: 66,
-            action: (_e, args) => {
-              console.log(args.dataContext, args.column);
-              alert('Upload');
-            },
-          },
-          {
-            command: 'split',
-            title: 'Split Job',
-            iconCssClass: 'fa fa-clone text-info',
-            positionOrder: 66,
-            action: (_e, args) => {
-              console.log(args.dataContext, args.column);
-              alert('Split');
-            },
-          },
-          {
-            command: 'merge', title: 'Merge Job', positionOrder: 64,
-            iconCssClass: 'fa fa-compress text-info', cssClass: 'red', textCssClass: 'text-italic color-danger-light',
-            action: (_e, args) => {
-              console.log(args.dataContext, args.column);
-              alert('Merge');
-            },
-          },
-        ]
-      }
+      excludeFromColumnPicker: true,
+      excludeFromGridMenu: true,
+      excludeFromHeaderMenu: true,
+      formatter: Formatters.icon,
+      params: { iconCssClass: 'fa fa-trash pointer' },
+      minWidth: 30,
+      maxWidth: 30,
+      cssClass: 'text-danger',
+      onCellClick: (_e: any, args: OnEventArgs) => {
+        alert('Delete');
+      },
     }
   ];
   
@@ -161,16 +110,6 @@ const JobsList = () => {
     ...ConfigSettings.gridOptions,
     ...{
       datasetIdPropertyName: 'uid',
-      enableCellMenu: true,
-      cellMenu: {
-        onCommand: (_e, args) => function () { },
-        onOptionSelected: (_e, args) => {
-          const dataContext = args && args.dataContext;
-          if (dataContext && dataContext.hasOwnProperty('completed')) {
-            dataContext.completed = args.item.option;
-          }
-        },
-      }
     }
   };
 
@@ -196,17 +135,6 @@ const JobsList = () => {
     });
   }
 
-  let getUsers = async () => {
-    const response: any = await LookupService.getUsers('client');
-    if (response.isSuccess) {
-      setUsers(response.data.map((item: any) => {
-        return { 'value': item.id, 'label': item.value };
-      })
-      );
-      console.log(response.data);
-    }
-  }
-
   let getStatus = async () => {
     const response: any = await LookupService.getStatus('status');
     if (response.isSuccess) {
@@ -227,7 +155,6 @@ const JobsList = () => {
   };
 
   useEffect(() => {
-    getUsers();
     getStatus();
     loadData();
   }, []);
@@ -251,7 +178,6 @@ const JobsList = () => {
   }
 
   // Notifications
-
   function reloadGridData() {
     loadData();
   };
@@ -283,10 +209,6 @@ const JobsList = () => {
                   <div className='col-md-2 text-right'> Select Status</div>
                   <div className='col-md-3'>
                     <Select options={statusList} isClearable={true} onChange={onStatusChange} />
-                  </div>
-                  <div className='col-md-2 text-right'> Select Client</div>
-                  <div className='col-md-3'>
-                    <Select options={usersList} isClearable={true} onChange={onClientChange} />
                   </div>
                   <div className='col-md-1'>
                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
@@ -330,4 +252,4 @@ const JobsList = () => {
 
 };
 
-export default JobsList;
+export default ClientJobList;

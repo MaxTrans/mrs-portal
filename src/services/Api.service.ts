@@ -26,7 +26,7 @@ axios.interceptors.response
     });
 
 const requests = {
-    get: (url: string) => axios.get(url).then(responseData),
+    get: (url: string) => axios.get(url, { headers: {'content-type': 'application/json'} }).then(responseData),
     post:(url: string, data: any) => axios.post(url, data).then(responseData),
     put:(url: string, data: any) => axios.put(url, data).then(responseData),
     delete: (url: string) => axios.delete(url).then(responseData)

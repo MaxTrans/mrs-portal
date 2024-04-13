@@ -38,6 +38,7 @@ const Login = () => {
       const response = await authLogin(userdto);
 
       user = (response as AxiosResponse).data as IUser;
+     
       dispatch(setAuthentication(user));
 
       setAuthLoading(false);
@@ -137,10 +138,10 @@ const Login = () => {
                 </div>
               </div>
               <div className="col-4">
-                <Button
+                <Button 
                   loading={isAuthLoading}
                   disabled={isFacebookAuthLoading || isGoogleAuthLoading}
-                  onClick={handleSubmit as any} >
+                  onClick={handleSubmit as any}>
                   {t('login.button.signIn.label')}
                 </Button>
               </div>

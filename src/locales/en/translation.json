@@ -79,8 +79,10 @@
       "profile": "Profile",
       "blank": "Blank",
       "mainMenu": "Main Menu",
-      "subMenu": "Jobs",
-      "intake": "Intake Form"
+      "adminjobs": "Jobs",
+      "clientjobs": "Jobs",
+      "upload": "Upload",
+      "clientlist": "Clients"
     }
   },
   "footer": {

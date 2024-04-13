@@ -3,18 +3,19 @@ export interface IUserDTO{
     password: string
 }
 export default interface IUser {
-    id: number,
-    firstname: string,
-    lastname: string,
-    loginname: string,
+    id: string,
+    firstName: string,
+    lastName: string,
+    loginName: string,
     password: string,
-    phoneno: string,
+    phoneNo: string,
     email: string,
-    rolename: string,
-    companyname: string,
+    roleName: string,
+    companyId: string,
+    companyName: string,
     isAuthenticated: boolean,
     token: string,
-    refreshtoken: string,
+    refreshToken: string,
     expiration: Date
 }
 
