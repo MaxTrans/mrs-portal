@@ -18,7 +18,9 @@ export const fileUploadSlice = createSlice({
       })
     },
     removeUploadedFiles: (state: Array<IUploadFiles>) => {
-      state = new Array<IUploadFiles>;
+      while(state.length > 0){
+        state.pop();
+      }
     }
   },
 });

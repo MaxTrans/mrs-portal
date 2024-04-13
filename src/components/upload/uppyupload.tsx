@@ -3,20 +3,22 @@ import React, { Component, useEffect } from'react'
 import { DashboardModal, DragDrop, ProgressBar, FileInput}  from'@uppy/react';
 import Dashboard from '@uppy/dashboard';
 import DropTarget from "@uppy/drop-target";
-import Uppy, { UppyFile } from '@uppy/core';
+import Uppy, { UploadResult, UppyFile } from '@uppy/core';
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
 import '@uppy/progress-bar/dist/style.css'
 import '@uppy/drag-drop/dist/style.css'
 import XHRUpload from '@uppy/xhr-upload';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUploadedFiles } from '@store/reducers/fileupload';
+import store from '@app/store/store';
+import IUploadFiles from '@app/store/Models/UploadFiles';
 
 
 export default function UppyUpload() {
   let uppy: any;
   const dispatch = useDispatch();
-
+  const uploadedFiles = useSelector((state: Array<IUploadFiles>) => store.getState().uploadfile);
   useEffect(() => {
     uppy = new Uppy({ id: 'uppyloader', autoProceed: false, debug: true })
                     .use(Dashboard, {
@@ -31,15 +33,22 @@ export default function UppyUpload() {
                       target: document.body,
                     })
                     .use(XHRUpload, { endpoint: 'http://localhost:5107/api/Upload/Upload', formData: true, bundle: true, fieldName:'fileupload' })
-                    .on('complete', (result: any) =>{
-                        console.log(result);
-                        dispatch(setUploadedFiles({
-                          fileId: result.uploadID,
-                          filename: result.successful[0].data.name,
-                          size: result.successful[0].data.size,
-                          fileextension: result.successful[0].extension,
-                          filepath: result.successful[0].data.name
-                        }))
+                    .on('complete', (result: UploadResult) =>{
+                        
+                        let files = result.successful.filter(function(item) {
+                            return uploadedFiles.filter(x => x.filename  !== item.name)
+                        });
+                        
+                        for(let i= 0; i <= files.length - 1; i++){
+                          dispatch(setUploadedFiles({
+                            fileId: files[i].id,
+                            filename: files[i].name,
+                            size: files[i].size,
+                            fileextension: files[i].extension,
+                            filepath: files[i].name
+                          }));
+                      }
+                      
                     })
                     .setOptions({
                       restrictions: {
