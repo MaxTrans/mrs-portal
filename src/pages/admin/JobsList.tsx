@@ -180,7 +180,7 @@ const JobsList = () => {
 
   const loadData = () => {
     setLoader(true);
-    JobService.getJobs(selectedStatus, selectedClient).then((response: any) => {
+    JobService.getJobs(user.id, selectedStatus, selectedClient).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
           item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles : [];

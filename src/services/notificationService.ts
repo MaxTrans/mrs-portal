@@ -1,8 +1,8 @@
 import ApiService from '@app/services/Api.service';
 
-export const getNotifications = (jobId: string) => {
+export const getNotifications = (jobId: string, userId: string) => {
     return new Promise(async (res, rej) => {
-      ApiService.requests.get('Notification/getnotifications?jobId=' + jobId)
+      ApiService.requests.get(`Notification/getnotifications?jobId=${jobId}&userId=${userId}`)
       .then((response) => {
         if(response.isSuccess)
         {

@@ -55,7 +55,7 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
       if (response.isSuccess) {
         getNotificationList(data.jobId);
         saveForm.resetForm();
-        props.reloadGridData();
+        //props.reloadGridData();
         console.log(response.data);
 
       }
@@ -77,7 +77,7 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
 
   function getNotificationList(jobId: string) {
     setNotificationShow(true);
-    NotificationService.getNotifications(jobId).then((response:any) => {
+    NotificationService.getNotifications(jobId,user.id).then((response:any) => {
       if (response.isSuccess) {
         setNotificationData(response.data);
       }
@@ -98,11 +98,11 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
   const ModalBodyContent = () => {
     let notifications = notificationList.map((item: any) =>
       <div className="row px-2" key={item.id}>
-        <div className="col-md-11">
+        <div className={"col-md-11"}>
           <div className={"callout p-2 " + (item.isReadMessage ? 'callout-default' : 'callout-success')}>
             <div>
-              <span className="badge badge-info">{item.createdByName}</span>&nbsp;
-              <span className="badge badge-warning">{moment(item.createdDateTime).format('YYYY-MM-DD hh:mm A')}</span>
+              <span className={"badge " + (item.createdByName == 'You' ? 'badge-secondary' : 'badge-info')}>{item.createdByName}</span>&nbsp;
+              <span className={"badge " + (item.createdByName == 'You' ? 'badge-secondary' : 'badge-warning')}>{moment(item.createdDateTime).format('YYYY-MM-DD hh:mm A')}</span>
             </div>
             <div>
               {item.comments}
