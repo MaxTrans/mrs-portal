@@ -7,6 +7,7 @@ import { Image } from '@profabric/react-components';
 import styled from 'styled-components';
 import { SidebarSearch } from '@app/components/sidebar-search/SidebarSearch';
 import i18n from '@app/utils/i18n';
+import IUser from '../../../store/Models/User';
 
 export interface IMenuItem {
   name: string;
@@ -15,46 +16,91 @@ export interface IMenuItem {
   children?: Array<IMenuItem>;
 }
 
-export const MENU: IMenuItem[] = [
+
+
+
+export const ADMIN_MENU: IMenuItem[] = [
   {
     name: i18n.t('menusidebar.label.dashboard'),
     icon: 'fas fa-tachometer-alt nav-icon',
     path: '/',
   },
-  // {
-  //   name: i18n.t('menusidebar.label.blank'),
-  //   icon: 'fas fa-wrench nav-icon',
-  //   path: '/blank',
-  // },
   {
-    name: i18n.t('menusidebar.label.subMenu'),
+    name: i18n.t('menusidebar.label.clientlist'),
+    icon: 'fas fa-users nav-icon',
+    path: '/client-list',
+  },
+  {
+    name: i18n.t('menusidebar.label.adminjobs'),
     icon: 'fas fa-file-alt nav-icon',
     path: '/admin-jobs',
+  }
+];
+
+export const CLIENT_MENU: IMenuItem[] = [
+  {
+    name: i18n.t('menusidebar.label.dashboard'),
+    icon: 'fas fa-tachometer-alt nav-icon',
+    path: '/',
   },
   {
-    name: i18n.t('menusidebar.label.intake'),
-    icon: 'fas fa-clipboard nav-icon',
+    name: i18n.t('menusidebar.label.clientjobs'),
+    icon: 'fas fa-file-alt nav-icon',
+    path: '/client-jobs',
+  },
+  {
+    name: i18n.t('menusidebar.label.upload'),
+    icon: 'fas fa-upload nav-icon',
     path: '/intake',
   },
-  
-  // {
-  //   name: i18n.t('menusidebar.label.mainMenu'),
-  //   icon: 'far fa-caret-square-down nav-icon',
-  //   children: [
-  //     {
-  //       name: i18n.t('menusidebar.label.subMenu'),
-  //       icon: 'fas fa-hammer nav-icon',
-  //       path: '/sub-menu-1',
-  //     },
-
-  //     {
-  //       name: i18n.t('menusidebar.label.blank'),
-  //       icon: 'fas fa-cogs nav-icon',
-  //       path: '/sub-menu-2',
-  //     },
-  //   ],
-  // },
 ];
+export const EMPLOYEE_MENU: IMenuItem[] = [];
+
+// export const MENU: IMenuItem[] = [];
+
+
+
+// export const MENU: IMenuItem[] = [
+//   {
+//     name: i18n.t('menusidebar.label.dashboard'),
+//     icon: 'fas fa-tachometer-alt nav-icon',
+//     path: '/',
+//   },
+//   // {
+//   //   name: i18n.t('menusidebar.label.blank'),
+//   //   icon: 'fas fa-wrench nav-icon',
+//   //   path: '/blank',
+//   // },
+  
+//   {
+//     name: i18n.t('menusidebar.label.adminjobs'),
+//     icon: 'fas fa-file-alt nav-icon',
+//     path: '/admin-jobs',
+//   },
+//   {
+//     name: i18n.t('menusidebar.label.intake'),
+//     icon: 'fas fa-clipboard nav-icon',
+//     path: '/intake',
+//   },
+  
+//   // {
+//   //   name: i18n.t('menusidebar.label.mainMenu'),
+//   //   icon: 'far fa-caret-square-down nav-icon',
+//   //   children: [
+//   //     {
+//   //       name: i18n.t('menusidebar.label.subMenu'),
+//   //       icon: 'fas fa-hammer nav-icon',
+//   //       path: '/sub-menu-1',
+//   //     },
+
+//   //     {
+//   //       name: i18n.t('menusidebar.label.blank'),
+//   //       icon: 'fas fa-cogs nav-icon',
+//   //       path: '/sub-menu-2',
+//   //     },
+//   //   ],
+//   // },
+// ];
 
 const StyledBrandImage = styled(Image)`
   float: left;
@@ -70,10 +116,36 @@ const StyledUserImage = styled(Image)`
 `;
 
 const MenuSidebar = () => {
-  const authentication = useSelector((state: User) => store.getState().auth.isAuthenticated);
+
+  const user = useSelector((state: IUser) => store.getState().auth);
+  const authentication = user.isAuthenticated; //useSelector((state: IUser) => store.getState().auth.isAuthenticated);
   const sidebarSkin = useSelector((state: any) => state.ui.sidebarSkin);
   const menuItemFlat = useSelector((state: any) => state.ui.menuItemFlat);
   const menuChildIndent = useSelector((state: any) => state.ui.menuChildIndent);
+
+
+  function getMenuItems(){
+
+    if(!user) return [];
+    
+    let menu: IMenuItem[];
+    switch(user.roleName.toUpperCase()){
+        case "ADMIN":
+          menu = ADMIN_MENU;
+          break;
+        case "EMPLOYEE":
+          menu = EMPLOYEE_MENU;
+          break;
+        case "CLIENT":
+          menu = CLIENT_MENU;
+          break;
+          default: menu = [];
+    };
+  
+    return menu;
+  }
+
+  let MENU:IMenuItem[] = getMenuItems();
 
   return (
     <aside className={`main-sidebar elevation-4 ${sidebarSkin}`}>

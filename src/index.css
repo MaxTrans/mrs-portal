@@ -111,3 +111,40 @@
 .box:hover::after {
     opacity: 1;
 }
+
+#overlay {
+  background: #c9c9c9;
+  color: #666666;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 5000;
+  top: 0;
+  left: 0;
+  float: left;
+  text-align: center;
+  opacity: .5;
+}
+.spinner {
+    margin: 0 auto;
+    height: 64px;
+    width: 64px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 0.9;
+    transform: translate(-50%, -50%);
+    animation: rotate 0.8s infinite linear;
+    border: 5px solid rgb(34, 92, 178);
+    border-right-color: transparent;
+    border-radius: 50%;
+    z-index: 5001;
+}
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

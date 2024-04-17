@@ -11,25 +11,31 @@ import { removeUploadedFiles } from '@store/reducers/fileupload';
 import ApiService from "@app/services/Api.service";
 import { toast } from "react-toastify";
 import { AxiosResponse } from "axios";
+import IUser from "@app/store/Models/User";
 
 interface IUploadForm{
     uploadfiles: any[],
     tat:string,
     comment: string,
-    uploadtype:boolean
+    uploadtype:boolean,
+    companyId: string,
+    createdBy: string
 }
 export default function Upload(){
     const [submitting, setSubmitting] = useState(false);
     const [ isSingle, setIsSingle ] = useState(true);
     const [showForm, setShowForm ] = useState(false);
 
+    const user = useSelector((state: IUser) => store.getState().auth);
     const uploadedFiles = useSelector((state: Array<IUploadFiles>) => store.getState().uploadfile);
     const dispatch = useDispatch();
     const initialValues: IUploadForm = {
         uploadfiles: uploadedFiles,
         tat:'',
         comment:'',
-        uploadtype:true
+        uploadtype:true,
+        companyId: user.companyId,
+        createdBy: user.id
     }
 
     const validationSchema = Yup.object({

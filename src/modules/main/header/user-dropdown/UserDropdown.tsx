@@ -14,6 +14,7 @@ import {
 import store from '../../../../store/store';
 import User from '../../../../store/Models/User';
 import { sleep } from '@app/utils/helpers';
+import IUser from '../../../../store/Models/User';
 
 declare const FB: any;
 
@@ -21,7 +22,7 @@ const UserDropdown = () => {
   const navigate = useNavigate();
   const [t] = useTranslation();
   const dispatch = useDispatch();
-  const authentication = useSelector((state: User) => store.getState().auth);
+  const authentication = useSelector((state: IUser) => store.getState().auth);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const logOut = async (event: any) => {
@@ -30,9 +31,10 @@ const UserDropdown = () => {
     console.log('authentication', authentication);
     const user = {} as User;
     dispatch(setAuthentication(user));
+    
+    //location.href = '/';
+    navigate('/login');
     localStorage.removeItem('authentication');
-    location.href = '/';
-    //navigate('/login');
   };
 
   const navigateToProfile = (event: any) => {
@@ -61,16 +63,16 @@ const UserDropdown = () => {
             rounded
           />
           <p>
-            {authentication.email}
-            <small>
+            {authentication.email} ({authentication.roleName})
+            {/* <small>
               <span>Member since </span>
               <span>
-                {/* {DateTime.fromISO(user.createdAt).toFormat('dd LLL yyyy')} */}
+                {DateTime.fromISO(user.createdAt).toFormat('dd LLL yyyy')} }
               </span>
-            </small>
+            </small> */}
           </p>
         </UserHeader>
-        <UserBody>
+        {/* <UserBody>
           <div className="row">
             <div className="col-4 text-center">
               <Link to="/">{t('header.user.followers')}</Link>
@@ -82,7 +84,7 @@ const UserDropdown = () => {
               <Link to="/">{t('header.user.friends')}</Link>
             </div>
           </div>
-        </UserBody>
+        </UserBody> */}
         <UserFooter>
           <button
             type="button"

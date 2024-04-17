@@ -68,9 +68,10 @@ export const authLogin = (user: IUserDTO) => {
     .then((response) => {
       if(response.isSuccess)
       {
+        response.data.isAuthenticated = true;
         localStorage.setItem(
           'authentication',
-          JSON.stringify({ profile: response.data })
+          JSON.stringify(response.data)
         );
         return res(response);
       }
