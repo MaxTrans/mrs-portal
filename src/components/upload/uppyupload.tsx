@@ -42,7 +42,7 @@ export default function UppyUpload() {
       })
       .use(AwsS3Multipart, {
           limit: 4,
-          companionUrl:'http://localhost:5107/api/'
+          companionUrl:'http://localhost:8080/'
         },
         // shouldUseMultipart(file: UppyFile) {
         //   let isMultiPart = true
