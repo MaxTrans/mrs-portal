@@ -12,6 +12,7 @@ import ApiService from "@app/services/Api.service";
 import { toast } from "react-toastify";
 import { AxiosResponse } from "axios";
 import IUser from "@app/store/Models/User";
+import { useNavigate } from "react-router-dom";
 
 interface IUploadForm{
     uploadfiles: any[],
@@ -25,7 +26,7 @@ export default function Upload(){
     const [submitting, setSubmitting] = useState(false);
     const [ isSingle, setIsSingle ] = useState(true);
     const [showForm, setShowForm ] = useState(false);
-
+    const navigate = useNavigate();
     const user = useSelector((state: IUser) => store.getState().auth);
     const uploadedFiles = useSelector((state: Array<IUploadFiles>) => store.getState().uploadfile);
     const dispatch = useDispatch();
@@ -55,6 +56,7 @@ export default function Upload(){
                 if(response.isSuccess)
                 {
                     toast.success('Job saved successfully');
+                    navigate('/client-jobs');
                 }
                 else
                 {
@@ -77,6 +79,11 @@ export default function Upload(){
         
     })
 
+    const displayErrors = (errors: any) => {
+        let err = Object.keys(errors).map((att, index) => errors[att]).join('\r\n');
+        toast.error(err, { style: { whiteSpace:'pre' } });
+    }
+
     return(
         <section className="content">
             <div className="container-fluid">
@@ -96,7 +103,7 @@ export default function Upload(){
                             Single Upload
                         </div>
                     </div> }
-                    {showForm && (<Form onSubmit={formik.handleSubmit}>
+                    {showForm && (<Form>
                        
                         <Form.Group as={Row} className="mb-3">
                             <div className="col-sm-2">
@@ -112,9 +119,6 @@ export default function Upload(){
                                 <option value="3">Three hours</option>
                             </FormControl>
                             </Col>
-                            {formik.touched.tat && formik.errors.tat && (
-                                <Col sm="4">{formik.errors.tat}</Col>
-                            )}
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
                             <div className="col-sm-2">
@@ -123,26 +127,17 @@ export default function Upload(){
                             <Col sm="6">
                                 <FormControl placeholder="Please enter comments" name="comment"  as="textarea" rows={3} value={formik.values.comment} onChange={formik.handleChange}/>
                             </Col>
-                            {formik.touched.comment && formik.errors.comment && (
-                                <Col sm="4">{formik.errors.comment}</Col>
-                            )}
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
                             <div className="col-sm-2">
                                 Upload: 
                             </div>
                             <Col sm="6">
-                                <UppyUpload />
+                                <UppyUpload onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
                             </Col>
-                                {formik.touched.uploadfiles && formik.errors.uploadfiles && (
-                                    <Col sm="4">{formik.errors.uploadfiles.toString()}</Col>
-                                )}
                         </Form.Group>
-                        <Button variant="primary" className="offset-2" type="submit">
-                            Submit
-                        </Button>
                         <Button variant="secondary" type="button" className="ml-3" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm();  }}>
-                            Back
+                            Cancel
                         </Button>
                     </Form>)}
                     </div>

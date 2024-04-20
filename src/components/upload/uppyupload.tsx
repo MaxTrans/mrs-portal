@@ -13,11 +13,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUploadedFiles } from "@store/reducers/fileupload";
 import store from "@app/store/store";
 import IUploadFiles from "@app/store/Models/UploadFiles";
-import AwsS3, { AwsS3UploadParameters } from "@uppy/aws-s3";
-import APIService from "@app/services/Api.service";
 import AwsS3Multipart from "@uppy/aws-s3-multipart";
 
-export default function UppyUpload() {
+export default function UppyUpload(props: any) {
   let uppy: any;
   const dispatch = useDispatch();
   const uploadedFiles = useSelector(
@@ -44,42 +42,12 @@ export default function UppyUpload() {
           limit: 4,
           companionUrl:'http://localhost:8080/'
         },
-        // shouldUseMultipart(file: UppyFile) {
-        //   let isMultiPart = true
-        //   return isMultiPart;
-        // },
-        // createMultipartUpload(file) {
-        //   return APIService.requests
-        //     .post(`Upload/Multipart/`, { type: file.type })
-        //     .then((response) => response.json());
-        // },
-        // listParts(file: UppyFile, { uploadId, key }) {
-        //   let data = { key: key };
-        //   return APIService.requests.post(`/Upload/MultipartByUploadId/${uploadId}`, {
-        //     body: data,
-        //   }).then((response) => response.json());
-        // },
-        // signPart(file: UppyFile, { key, uploadId, partNumber }) {
-        //   let data = { key: key };
-        //   return APIService.requests.post(`/Upload/multipartByUploadIdPartNum/${uploadId}/${partNumber}`, {
-        //     body: data,
-        //   }).then((response) => response.json());
-        // },
-        // abortMultipartUpload(file: UppyFile, { uploadId, key }) {
-        //   let data = { key: key };
-        //   return APIService.requests.delete(`/Upload/DeleteMultipartByUploadID/${uploadId}`)
-        //         .then((response) => response.json());
-        // },
-        // completeMultipartUpload(file: UppyFile, { uploadId, key, parts }) {
-        //   let data = { key: key, parts: parts };
-        //   return APIService.requests.post(`/Upload/CompleteMultipart/${uploadId}`, {
-        //     body: data,
-        //   }).then((response) => response.json());
-        // },
       )
+      .on("file-added",() => { props.onBeforeUpload() } )
       //.use(XHRUpload, { endpoint: 'http://localhost:5107/api/Upload/Upload', formData: true, bundle: true, fieldName:'fileupload' })
       .on("complete", (result: UploadResult) => {
         console.log(result);
+
         let files = result.successful.filter(function (item) {
           return uploadedFiles.filter((x) => x.filename !== item.name);
         });
@@ -95,10 +63,11 @@ export default function UppyUpload() {
             })
           );
         }
+        props.onCompleteCallback();
       })
       .setOptions({
         restrictions: {
-          allowedFileTypes: [".pdf"],
+          allowedFileTypes: [".pdf",".docx"],
         },
       }));
   }, []);
@@ -109,10 +78,6 @@ export default function UppyUpload() {
     };
   }, []);
 
-  function getAzureSASToken(
-    name: string,
-    type: string | undefined,
-    extension: string
-  ) {}
+
   return <div id="uppyUpload"></div>;
 }
