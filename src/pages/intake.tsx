@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useFormik } from "formik";
+import { useFormik, yupToFormErrors } from "formik";
 import { Form, FormControl, Row, Col, Button, Nav, Image } from "react-bootstrap";
 import * as Yup from 'yup';
 import UppyUpload from "@app/components/upload/uppyupload";
@@ -21,11 +21,13 @@ interface IUploadForm{
     uploadtype:boolean,
     companyId: string,
     createdBy: string
+    mergeFilename: string
 }
 export default function Upload(){
     const [submitting, setSubmitting] = useState(false);
     const [ isSingle, setIsSingle ] = useState(true);
     const [showForm, setShowForm ] = useState(false);
+    
     const navigate = useNavigate();
     const user = useSelector((state: IUser) => store.getState().auth);
     const uploadedFiles = useSelector((state: Array<IUploadFiles>) => store.getState().uploadfile);
@@ -36,14 +38,20 @@ export default function Upload(){
         comment:'',
         uploadtype:true,
         companyId: user.companyId,
-        createdBy: user.id
+        createdBy: user.id,
+        mergeFilename: '',
     }
 
     const validationSchema = Yup.object({
         uploadfiles: Yup.mixed().required('Please select a file'),
         tat: Yup.string().required('TAT is required'),
         comment: Yup.string().required('Comment is required'),
-    });
+        mergeFilename: Yup.string().when('uploadtype', {
+            is: false,
+            then: () => Yup.string().required('Please enter merge file name')
+            })
+        });
+    
 
     const handleSubmit = async (values: IUploadForm) => {
         try{
@@ -56,6 +64,8 @@ export default function Upload(){
                 if(response.isSuccess)
                 {
                     toast.success('Job saved successfully');
+                    formik.resetForm();
+                    dispatch(removeUploadedFiles());
                     navigate('/client-jobs');
                 }
                 else
@@ -76,12 +86,13 @@ export default function Upload(){
         initialValues: initialValues,
         onSubmit: handleSubmit,
         validationSchema: validationSchema,
-        
     })
 
     const displayErrors = (errors: any) => {
         let err = Object.keys(errors).map((att, index) => errors[att]).join('\r\n');
-        toast.error(err, { style: { whiteSpace:'pre' } });
+        if (err !== ''){
+            toast.error(err, { style: { whiteSpace:'pre' } });
+        }
     }
 
     return(
@@ -94,17 +105,26 @@ export default function Upload(){
                     <div className="card-body">
                     
                     { !showForm && <div className="d-flex justify-content-center mb-3">
-                        <div className="shadow upload-button-green mr-5 pointer box" onClick={() => { setIsSingle(false); setShowForm(true) }}>
+                        <div className="shadow upload-button-green mr-5 pointer box" onClick={() => { setIsSingle(false); setShowForm(true); formik.values.uploadtype = false }}>
                         <PiFilesThin size={80} className="transparent-color"/>
                             Merge Upload
                         </div>   
-                        <div className="shadow upload-button-blue px-3 pointer box" onClick={() => { setIsSingle(true); setShowForm(true) }}>
+                        <div className="shadow upload-button-blue px-3 pointer box" onClick={() => { setIsSingle(true); setShowForm(true); formik.values.uploadtype = true }}>
                             <PiFileThin size={80} className="transparent-color"/>
                             Single Upload
                         </div>
                     </div> }
                     {showForm && (<Form>
-                       
+                        {!isSingle && 
+                         <Form.Group as={Row} className="mb-3">
+                         <div className="col-sm-2">
+                             Merge File Name: 
+                         </div>
+                         <Col sm="6">
+                             <FormControl name="mergeFilename" value={formik.values.mergeFilename} onChange={formik.handleChange}/>
+                         </Col>
+                     </Form.Group>
+                        }
                         <Form.Group as={Row} className="mb-3">
                             <div className="col-sm-2">
                                 TAT: 
@@ -133,7 +153,7 @@ export default function Upload(){
                                 Upload: 
                             </div>
                             <Col sm="6">
-                                <UppyUpload onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
+                                <UppyUpload customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
                             </Col>
                         </Form.Group>
                         <Button variant="secondary" type="button" className="ml-3" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm();  }}>

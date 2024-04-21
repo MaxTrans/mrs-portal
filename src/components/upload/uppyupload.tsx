@@ -43,7 +43,7 @@ export default function UppyUpload(props: any) {
           companionUrl:'http://localhost:8080/'
         },
       )
-      .on("file-added",() => { props.onBeforeUpload() } )
+      .on("file-added",() => { props.onBeforeUpload() })
       //.use(XHRUpload, { endpoint: 'http://localhost:5107/api/Upload/Upload', formData: true, bundle: true, fieldName:'fileupload' })
       .on("complete", (result: UploadResult) => {
         console.log(result);
@@ -59,7 +59,7 @@ export default function UppyUpload(props: any) {
               filename: files[i].name,
               size: files[i].size,
               fileextension: files[i].extension,
-              filepath: files[i].name,
+              filepath: files[i].uploadURL,
             })
           );
         }
