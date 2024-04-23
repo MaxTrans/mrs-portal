@@ -26,6 +26,9 @@ export default function UppyUpload(props: any) {
       id: "uppyloader",
       autoProceed: false,
       debug: true,
+      onBeforeUpload: (files:any) => {
+          return props.onBeforeUpload()
+      }
     })
       .use(Dashboard, {
         inline: true,
@@ -43,7 +46,6 @@ export default function UppyUpload(props: any) {
           companionUrl:'http://localhost:8080/'
         },
       )
-      .on("file-added",() => { props.onBeforeUpload() })
       //.use(XHRUpload, { endpoint: 'http://localhost:5107/api/Upload/Upload', formData: true, bundle: true, fieldName:'fileupload' })
       .on("complete", (result: UploadResult) => {
         console.log(result);
@@ -68,6 +70,7 @@ export default function UppyUpload(props: any) {
       .setOptions({
         restrictions: {
           allowedFileTypes: [".pdf",".docx"],
+          maxNumberOfFiles: 1
         },
       }));
   }, []);

@@ -92,7 +92,9 @@ export default function Upload(){
         let err = Object.keys(errors).map((att, index) => errors[att]).join('\r\n');
         if (err !== ''){
             toast.error(err, { style: { whiteSpace:'pre' } });
+            return false;
         }
+        return true;
     }
 
     return(
