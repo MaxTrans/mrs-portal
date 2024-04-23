@@ -12,6 +12,7 @@ import ConfigSettings from '@app/utils/config';
 import IUser from '@app/store/Models/User';
 import store from '@app/store/store';
 import { useSelector } from 'react-redux';
+import DownloadZipService from '@app/services/downloadZipService';
 
 let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
@@ -22,6 +23,7 @@ const ClientJobList = () => {
   const [statusList, setStatus] = useState([]);
   const [fileList, setFiles] = useState([]);
   const [showloader, setLoader] = useState(true);
+  const [mergeFileName, setMergeFileName] = useState('');
 
   // Files Modal 
   const [show, setShow] = useState(false);
@@ -47,18 +49,21 @@ const ClientJobList = () => {
       id: 'files', name: 'File', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? '<a heef="#" class="pointer">compressed.zip</a>' : '';
+          return value.length > 0 ? `<a heef="#" class="pointer">${dataContext.name}.zip</>` : '';
         else
-          return value.length > 0 ? '<a heef="#">' + value[0].FileName + '</a>' : '';
+          return value.length > 0 ? '<a heef="#" class="pointer">' + value[0].FileName + '</a>' : '';
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
         if (args.dataContext.isSingleJob) {
           setFiles(args.dataContext.files);
-          handleShow();
+          setMergeFileName(args.dataContext.name);
+          downloadZip();
+          //handleShow();
         }
         else {
-          toast.info('File Downloaded.')
+          let fileInfo: any = args.dataContext.files[0];
+          downloadFile(fileInfo);
         }
       }
     },
@@ -154,13 +159,22 @@ const ClientJobList = () => {
     selectedClient = newValue ? newValue.value : '';
   };
 
+  function downloadFile(fileInfo: any){
+    saveAs(fileInfo.SourceFilePath, fileInfo.FileName);
+  };
+
+  function downloadZip(){
+    let files = fileList.map((item: any) => { return item.SourceFilePath; } );
+      DownloadZipService.createZip(files, mergeFileName, function() {});
+  }
+
   useEffect(() => {
     getStatus();
     loadData();
   }, []);
 
   const FileBody = () => {
-    let files = fileList.map((item: any) => <tr><td>{item.FileName}</td><td width={30} className='text-center'><a href='#'><i className="fa fa-download" aria-hidden="true"></i></a></td></tr>);
+    let files = fileList.map((item: any) => <tr key={item.FileName}><td>{item.FileName}</td><td width={30} className='text-center'> <Button onClick={() => downloadFile(item)} className='btn-sm pointer'> <i className="fa fa-download" aria-hidden="true"></i></Button></td></tr>);
 
     return (
       <table border={0} width={'100%'} className="table table-sm">

@@ -12,6 +12,8 @@ import ConfigSettings from '@app/utils/config';
 import { useSelector } from 'react-redux';
 import store from '../../store/store';
 import IUser from '../../store/Models/User';
+import { saveAs } from 'file-saver';
+import DownloadZipService from '@app/services/downloadZipService';
 
 
 interface Props { }
@@ -37,6 +39,7 @@ const JobsList = () => {
   const [usersList, setUsers] = useState([]);
   const [statusList, setStatus] = useState([]);
   const [fileList, setFiles] = useState([]);
+  const [mergeFileName, setMergeFileName] = useState('');
   const [showloader, setLoader] = useState(true);
 
 
@@ -71,16 +74,19 @@ const JobsList = () => {
         if (dataContext.isSingleJob)
           return value.length > 0 ? '<a heef="#" class="pointer">View Files</a>' : '';
         else
-          return value.length > 0 ? '<a heef="#">' + value[0].FileName + '</a>' : '';
+          return value.length > 0 ? '<a heef="#" class="pointer">' + value[0].FileName + '</a>' : '';
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
         if (args.dataContext.isSingleJob) {
           setFiles(args.dataContext.files);
+          setMergeFileName(args.dataContext.name)
           handleShow();
         }
         else {
-          toast.info('File Downloaded.')
+          let fileInfo: any = args.dataContext.files[0];
+          downloadFile(fileInfo);
+          
         }
       }
     },
@@ -226,6 +232,15 @@ const JobsList = () => {
     selectedClient = newValue ? newValue.value : '';
   };
 
+  function downloadFile(fileInfo: any){
+    saveAs(fileInfo.SourceFilePath, fileInfo.FileName);
+  };
+
+  function downloadZip(){
+    let files = fileList.map((item: any) => { return item.SourceFilePath; } );
+      DownloadZipService.createZip(files, mergeFileName, function() {});
+  }
+
   useEffect(() => {
     getUsers();
     getStatus();
@@ -233,7 +248,7 @@ const JobsList = () => {
   }, []);
 
   const FileBody = () => {
-    let files = fileList.map((item: any) => <tr><td>{item.FileName}</td><td width={30} className='text-center'><a href='#'><i className="fa fa-download" aria-hidden="true"></i></a></td></tr>);
+    let files = fileList.map((item: any) => <tr key={item.FileName}><td>{item.FileName}</td><td width={30} className='text-center'> <Button onClick={() => downloadFile(item)} className='btn-sm pointer'> <i className="fa fa-download" aria-hidden="true"></i></Button></td></tr>);
 
     return (
       <table border={0} width={'100%'} className="table table-sm">
@@ -317,7 +332,7 @@ const JobsList = () => {
           <Button variant="secondary" onClick={handleClose} className='btn-sm'>
             Close
           </Button>
-          <Button variant="primary" onClick={handleClose} className='btn-sm'>
+          <Button variant="primary" onClick={downloadZip} className='btn-sm'>
             Download Zip
           </Button>
         </Modal.Footer>
