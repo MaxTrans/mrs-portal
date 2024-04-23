@@ -13,6 +13,7 @@ import IUser from '@app/store/Models/User';
 import store from '@app/store/store';
 import { useSelector } from 'react-redux';
 import DownloadZipService from '@app/services/downloadZipService';
+import { saveAs } from 'file-saver';
 
 let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
@@ -23,7 +24,7 @@ const ClientJobList = () => {
   const [statusList, setStatus] = useState([]);
   const [fileList, setFiles] = useState([]);
   const [showloader, setLoader] = useState(true);
-  const [mergeFileName, setMergeFileName] = useState('');
+//  const [mergeFileName, setMergeFileName] = useState('');
 
   // Files Modal 
   const [show, setShow] = useState(false);
@@ -56,9 +57,9 @@ const ClientJobList = () => {
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
         if (args.dataContext.isSingleJob) {
-          setFiles(args.dataContext.files);
-          setMergeFileName(args.dataContext.name);
-          downloadZip();
+          //setMergeFileName(args.dataContext.name);
+          //setFiles(args.dataContext.files);
+          downloadZip(args.dataContext.files, args.dataContext.name);
           //handleShow();
         }
         else {
@@ -163,9 +164,8 @@ const ClientJobList = () => {
     saveAs(fileInfo.SourceFilePath, fileInfo.FileName);
   };
 
-  function downloadZip(){
-    let files = fileList.map((item: any) => { return item.SourceFilePath; } );
-      DownloadZipService.createZip(files, mergeFileName, function() {});
+  function downloadZip(mergeFileList: any [], mergeFileName: string){
+      DownloadZipService.createZip(mergeFileList, mergeFileName, function() {});
   }
 
   useEffect(() => {

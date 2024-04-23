@@ -237,8 +237,7 @@ const JobsList = () => {
   };
 
   function downloadZip(){
-    let files = fileList.map((item: any) => { return item.SourceFilePath; } );
-      DownloadZipService.createZip(files, mergeFileName, function() {});
+      DownloadZipService.createZip(fileList, mergeFileName, function() {});
   }
 
   useEffect(() => {

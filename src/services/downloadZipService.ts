@@ -43,15 +43,28 @@ async function createZip(files: any[], zipName: string, callback: Function) {
     const name = zipName + '.zip';
     var zip = new JSZip();
     // tslint:disable-next-line:prefer-for-of
-    for (let counter = 0; counter < files.length; counter++) {
-        const element = files[counter];
-        const fileData: any = await getFile(element);
-        const b: any = new Blob([fileData], {
-            type: fileData.type,
-        });
+    // for (let counter = 0; counter < files.length; counter++) {
+    //     const element = files[counter];
+    //     const fileData: any = await getFile(element);
+    //     const b: any = new Blob([fileData], {
+    //         type: fileData.type,
+    //     });
 
-        zip.file(element.substring(element.lastIndexOf('/') + 1), b);
-    }
+    //     zip.file(element.substring(element.lastIndexOf('/') + 1),b,);
+    // }
+    const imagesFetcher = await Promise.all(
+        files.map(async (file, index) => {
+          const res = await fetch(file.SourceFilePath);
+  
+          return res.blob();
+        })
+      );
+  
+      imagesFetcher.forEach((fileBlob, index) => {
+        let file = files[index];
+        zip.file(file.FileName, fileBlob );
+      });
+
     zip.generateAsync({ type: 'blob' }).then((content) => {
         if (callback) callback();
         if (content) {
