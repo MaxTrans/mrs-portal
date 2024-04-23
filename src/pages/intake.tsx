@@ -107,17 +107,17 @@ export default function Upload(){
                     <div className="card-body">
                     
                     { !showForm && <div className="d-flex justify-content-center mb-3">
-                        <div className="shadow upload-button-green mr-5 pointer box" onClick={() => { setIsSingle(false); setShowForm(true); formik.values.uploadtype = false }}>
+                        <div className="shadow upload-button-green mr-5 pointer box" onClick={() => { setIsSingle(true); setShowForm(true); formik.values.uploadtype = false }}>
                         <PiFilesThin size={80} className="transparent-color"/>
                             Merge Upload
                         </div>   
-                        <div className="shadow upload-button-blue px-3 pointer box" onClick={() => { setIsSingle(true); setShowForm(true); formik.values.uploadtype = true }}>
+                        <div className="shadow upload-button-blue px-3 pointer box" onClick={() => { setIsSingle(false); setShowForm(true); formik.values.uploadtype = true }}>
                             <PiFileThin size={80} className="transparent-color"/>
                             Single Upload
                         </div>
                     </div> }
                     {showForm && (<Form>
-                        {!isSingle && 
+                        {isSingle && 
                          <Form.Group as={Row} className="mb-3">
                          <div className="col-sm-2">
                              Merge File Name: 

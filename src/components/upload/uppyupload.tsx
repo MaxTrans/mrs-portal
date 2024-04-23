@@ -43,7 +43,8 @@ export default function UppyUpload(props: any) {
       })
       .use(AwsS3Multipart, {
           limit: 4,
-          companionUrl:'http://localhost:8080/'
+          //companionUrl:'http://localhost:8080/',
+          companionUrl: 'https://maxtra-uppy-server.azurewebsites.net/'
         },
       )
       //.use(XHRUpload, { endpoint: 'http://localhost:5107/api/Upload/Upload', formData: true, bundle: true, fieldName:'fileupload' })
