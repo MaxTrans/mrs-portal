@@ -40,7 +40,8 @@ export default function UppyUpload(props: any) {
       })
       .use(AwsS3Multipart, {
           limit: 4,
-          companionUrl:'http://localhost:8080/'
+          //companionUrl:'http://localhost:8080/',
+          companionUrl: 'https://maxtra-uppy-server.azurewebsites.net/'
         },
       )
       .on("file-added",() => { props.onBeforeUpload() })
