@@ -1,98 +1,108 @@
-import { Button } from '@profabric/react-components';
-import { Link } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { Form, FormControl, Row, Col, Button, FormCheck } from "react-bootstrap";
+import { useState } from 'react';
+import ApiService from '@app/services/Api.service';
+import { toast } from "react-toastify";
+import { AxiosResponse } from 'axios';
+import store from '../../store/store';
+import IUser from "@app/store/Models/User";
+import { useSelector } from 'react-redux';
+
+interface IUserPreferences {
+    userId: string,
+    website: string,
+    defaultTat: string,
+    IsPdfAllowed: boolean | undefined,
+    IsDocAllowed: boolean | undefined,
+}
+
+const initialValues: IUserPreferences = {
+    userId:'',
+    website: '',
+    defaultTat: '',
+    IsPdfAllowed: undefined,
+    IsDocAllowed: undefined
+}
 
 const SettingsTab = ({ isActive }: { isActive: boolean }) => {
+  const user = useSelector((state: IUser) => store.getState().auth);
+  const [ pdfAllowed, setPdfAllowed ] = useState(false);
+  const [ docAllowed, setDocAllowed ] = useState(false);
+
+  const validationSchema = Yup.object({
+    defaultTat: Yup.string().required('TAT is required'),
+    PdfAllowed: Yup.boolean().required('Please select PDF is allowed'),
+    DocAllowed: Yup.boolean().required('Please select DOC/DOCX is allowed'),
+  });
+
+  const handleSubmit = async (values: IUserPreferences) => {
+   
+    values.userId = user.id;
+  
+    ApiService.requests.post('User/SavePreferences', values)
+            .then((response) => {
+                if(response.isSuccess)
+                {
+                    toast.success('Preferences saved successfully');
+                    formik.resetForm();
+                }
+                else
+                {
+                    toast.error((response as AxiosResponse).data);
+                }
+            });
+  }
+
+  const formik = useFormik({
+    initialValues: initialValues,
+    onSubmit: handleSubmit,
+    //validationSchema: validationSchema,
+})
+
   return (
-    <div className={`tab-pane ${isActive ? 'active' : ''}`}>
-      <form className="form-horizontal">
-        <div className="form-group row">
-          <label htmlFor="inputName" className="col-sm-2 col-form-label">
-            Name
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="email"
-              className="form-control"
-              id="inputName"
-              placeholder="Name"
-            />
+    <Form>
+        <Form.Group as={Row}>
+          <div className="col-sm-2">
+              Website: 
           </div>
+          <Col sm="6">
+              <FormControl placeholder="Please enter website/url" name="website"  value={formik.values.website} onChange={formik.handleChange}/>
+          </Col>
+      </Form.Group>
+      <Form.Group as={Row} className="mb-3">
+        <div className="col-sm-2">
+            TAT: 
         </div>
-        <div className="form-group row">
-          <label htmlFor="inputEmail" className="col-sm-2 col-form-label">
-            Email
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="email"
-              className="form-control"
-              id="inputEmail"
-              placeholder="Email"
-            />
+        <Col sm="6">
+        <FormControl as="select" aria-label="Please select TAT" name="defaultTat"
+          value={formik.values.defaultTat}
+            onChange={formik.handleChange}>
+              <option value="">-- Select --</option>
+              <option value="1">24 hours</option>
+              <option value="2">Two days</option>
+              <option value="3">Three days</option>
+          </FormControl>
+        </Col>
+      </Form.Group>
+      <Form.Group as={Row}>
+          <div className="col-sm-2">
+              PDF Allowed: 
           </div>
-        </div>
-        <div className="form-group row">
-          <label htmlFor="inputName2" className="col-sm-2 col-form-label">
-            Name
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="text"
-              className="form-control"
-              id="inputName2"
-              placeholder="Name"
-            />
+          <Col sm="6">
+              <FormCheck name="PdfAllowed" type='checkbox' checked={pdfAllowed} onChange={(e) => { setPdfAllowed(e.target.checked); formik.values.IsPdfAllowed = e.target.checked }}/>
+          </Col>
+      </Form.Group>
+      <Form.Group as={Row}>
+          <div className="col-sm-2">
+              DOC/DOCX Allowed: 
           </div>
-        </div>
-        <div className="form-group row">
-          <label htmlFor="inputExperience" className="col-sm-2 col-form-label">
-            Experience
-          </label>
-          <div className="col-sm-10">
-            <textarea
-              className="form-control"
-              id="inputExperience"
-              placeholder="Experience"
-              defaultValue=""
-            />
-          </div>
-        </div>
-        <div className="form-group row">
-          <label htmlFor="inputSkills" className="col-sm-2 col-form-label">
-            Skills
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="text"
-              className="form-control"
-              id="inputSkills"
-              placeholder="Skills"
-            />
-          </div>
-        </div>
-        <div className="form-group row">
-          <div className="offset-sm-2 col-sm-10">
-            <div className="icheck-primary">
-              <input
-                type="checkbox"
-                id="agreeTerms"
-                name="terms"
-                defaultValue="agree"
-              />
-              <label htmlFor="agreeTerms">
-                <span>I agree to the </span>
-                <Link to="/">terms and condition</Link>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="form-group row">
-          <div className="offset-sm-2 col-sm-10">
-            <Button variant="danger">Submit</Button>
-          </div>
-        </div>
-      </form>
-    </div>
+          <Col sm="6">
+          <FormCheck name="DocAllowed" type='checkbox' checked={docAllowed} onChange={(e) => { setDocAllowed(e.target.checked); formik.values.IsDocAllowed = e.target.checked }}/>
+          </Col>
+      </Form.Group>
+      <Button type='button' onClick={() => formik.handleSubmit()}>Save</Button>
+    </Form>
   );
 };
 
