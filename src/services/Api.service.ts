@@ -1,8 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 
-axios.defaults.baseURL = "http://localhost:5107/api/";
-//axios.defaults.baseURL = "https://maxtransapi-dev.azurewebsites.net/api/";
+//axios.defaults.baseURL = "http://localhost:5107/api/";
+axios.defaults.baseURL = "https://maxtransapi-dev.azurewebsites.net/api/";
 axios.defaults.headers.common = {
   'content-type': 'application/json',
   'Authorization': 'Bearer '// + ${auth_token}

@@ -45,9 +45,9 @@ const ClientJobList = () => {
       id: 'files', name: 'Job Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? `<a heef="#" class="pointer">${dataContext.name}.zip</>` : '';
+          return value.length > 0 ? `<a href="#" class="pointer">${dataContext.name}.zip</a>` : '';
         else
-          return value.length > 0 ? '<a heef="#" class="pointer">' + value[0].FileName + '</a>' : '';
+          return value.length > 0 ? `<a href="#" class="pointer">${value[0].FileName}</a>` : '';
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
@@ -59,7 +59,8 @@ const ClientJobList = () => {
         }
         else {
           let fileInfo: any = args.dataContext.files[0];
-          downloadFile(fileInfo);
+          window.open(fileInfo.SourceFilePath,'_blank');
+          
         }
       }
     },
@@ -71,6 +72,29 @@ const ClientJobList = () => {
       cssClass: 'text-left px-4'
     },
     { id: 'pagecount', name: 'No. of Pages', field: 'pagecount', sortable: true, maxWidth: 120 },
+    {
+      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true,
+      formatter: (row, cell, value, colDef, dataContext) => {
+        if (value.length == 0)
+          return '';
+        else if(value.length == 1)
+          return value.length > 0 ? `<a href="#" class="pointer">${value[0].FileName}</a>` : '';
+        else
+        return '<a  target="_blank" href="#">uploadfiles.zip</a>';
+
+      },
+      onCellClick: (e: Event, args: OnEventArgs) => {
+        console.log(args.dataContext);
+        if (args.dataContext.uploadFiles.length > 1) {
+          downloadZip(args.dataContext.uploadFiles, 'uploadfiles');
+        }
+        else {
+          let fileInfo: any = args.dataContext.uploadFiles[0];
+          window.open(fileInfo.SourceFilePath,'_blank');
+          
+        }
+      }
+    },
     { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
     
     {
@@ -133,7 +157,8 @@ const ClientJobList = () => {
     JobService.getJobs(user.id, selectedStatus, selectedClient).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
-          item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles : [];
+          item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
+          item.uploadFiles = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => item.IsUploadFile) : [];
           item.uid = crypto.randomUUID();
           return item;
         });

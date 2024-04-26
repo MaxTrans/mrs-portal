@@ -72,6 +72,7 @@ const JobsList = () => {
                 {
                     toast.success('File uploaded successfully');
                     handleUploadClose();
+                    reloadGridData();
                 }
                 else
                 {
@@ -124,6 +125,31 @@ const JobsList = () => {
     { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true, maxWidth: 100 },
     
     { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
+    {
+      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true,
+      formatter: (row, cell, value, colDef, dataContext) => {
+        if (value.length == 0)
+          return '';
+        else if(value.length == 1)
+          return value.length > 0 ? `<a href="#" class="pointer">${value[0].FileName}</a>` : '';
+        else
+        return '<a  target="_blank" href="#">View Files</a>';
+
+      },
+      onCellClick: (e: Event, args: OnEventArgs) => {
+        console.log(args.dataContext);
+        if (args.dataContext.uploadFiles.length > 1) {
+          setFiles(args.dataContext.uploadFiles);
+          setMergeFileName('uploadfiles');
+          handleShow();
+        }
+        else {
+          let fileInfo: any = args.dataContext.uploadFiles[0];
+          window.open(fileInfo.SourceFilePath,'_blank');
+          
+        }
+      }
+    },
     { id: 'statusName', name: 'Status', field: 'statusName', maxWidth: 100 },
     
     {
@@ -223,7 +249,8 @@ const JobsList = () => {
     JobService.getJobs(user.id, selectedStatus, selectedClient).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
-          item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles : [];
+          item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
+          item.uploadFiles = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => item.IsUploadFile) : [];
           item.uid = crypto.randomUUID();
           return item;
         });

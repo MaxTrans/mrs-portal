@@ -45,7 +45,7 @@ export default function Upload(){
     const validationSchema = Yup.object({
         uploadfiles: Yup.mixed().required('Please select a file'),
         tat: Yup.string().required('TAT is required'),
-        comment: Yup.string().required('Comment is required'),
+        //comment: Yup.string().required('Comment is required'),
         mergeFilename: Yup.string().when('uploadtype', {
             is: false,
             then: () => Yup.string().required('Merge file name is required')
@@ -154,7 +154,7 @@ export default function Upload(){
                                 Upload: 
                             </div>
                             <Col sm="6">
-                                <UppyUpload customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
+                                <UppyUpload filePreference={user.filePreference} customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
                             </Col>
                         </Form.Group>
                         <Button variant="secondary" type="button" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm();  }}>

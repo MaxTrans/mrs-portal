@@ -23,6 +23,7 @@ export const authSlice = createSlice({
       state.roleName = action.payload.roleName;
       state.token = action.payload.token;
       state.isAuthenticated = action.payload.isAuthenticated;
+      state.filePreference = action.payload.filePreference;
       APIService.requests.setAutentication(action.payload.token);
     },
   },

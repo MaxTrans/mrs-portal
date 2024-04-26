@@ -16,6 +16,7 @@ export default interface IUser {
     isAuthenticated: boolean,
     token: string,
     refreshToken: string,
-    expiration: Date
+    expiration: Date,
+    filePreference: string
 }
 
