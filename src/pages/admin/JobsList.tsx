@@ -4,15 +4,17 @@ import JobService from '@app/services/jobService';
 import LookupService from '@app/services/lookupService';
 import Select from 'react-select'
 import Button from 'react-bootstrap/Button';
-import { Modal } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
+import ModalHeader from 'react-bootstrap/ModalHeader';
 import { toast } from 'react-toastify';
 import NorificationModal from '../Modals/Notification';
 import PageLoader from '@app/utils/loading';
 import ConfigSettings from '@app/utils/config';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import store from '../../store/store';
 import IUser from '../../store/Models/User';
-import { saveAs } from 'file-saver';
+import UppyUpload from "@app/components/upload/uppyupload";
+import { removeUploadedFiles } from '@store/reducers/fileupload';import { saveAs } from 'file-saver';
 import DownloadZipService from '@app/services/downloadZipService';
 
 
@@ -34,7 +36,7 @@ const JobsList = () => {
 
   const user = useSelector((state: IUser) => store.getState().auth);
   console.log(user);
-
+  const dispatch = useDispatch();
   const [dataset, setData] = useState<any[]>([]);
   const [usersList, setUsers] = useState([]);
   const [statusList, setStatus] = useState([]);
@@ -48,7 +50,17 @@ const JobsList = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  // upload modal
+  const [ jobId, setJobId ] = useState('');
+  const [showUpload, setShowUpload] = useState(false);
+  const handleUploadClose = () => { setShowUpload(false); setJobId(''); dispatch(removeUploadedFiles()); }
+  const handleUploadShow = () => setShowUpload(true);
+  
 
+  const uploadFiles = () => {
+    console.log(jobId);
+    handleUploadClose();
+  }
 
   let selectedStatus: string = '';
   let selectedClient: string = '';
@@ -136,7 +148,8 @@ const JobsList = () => {
             positionOrder: 66,
             action: (_e, args) => {
               console.log(args.dataContext, args.column);
-              alert('Upload');
+              handleUploadShow();
+              setJobId(args.dataContext.id);
             },
           },
           {
@@ -333,6 +346,21 @@ const JobsList = () => {
           </Button>
           <Button variant="primary" onClick={downloadZip} className='btn-sm'>
             Download Zip
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+      <Modal show={showUpload} onHide={handleUploadClose} centered={false}>
+        <ModalHeader placeholder={undefined}>
+            Upload File
+        </ModalHeader>
+        <Modal.Body className='p-1'>
+            <UppyUpload admin={true} onCompleteCallback={uploadFiles} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleUploadClose} className='btn-sm'>
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

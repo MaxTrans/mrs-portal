@@ -48,7 +48,7 @@ export default function Upload(){
         comment: Yup.string().required('Comment is required'),
         mergeFilename: Yup.string().when('uploadtype', {
             is: false,
-            then: () => Yup.string().required('Please enter merge file name')
+            then: () => Yup.string().required('Merge file name is required')
             })
         });
     
@@ -92,7 +92,9 @@ export default function Upload(){
         let err = Object.keys(errors).map((att, index) => errors[att]).join('\r\n');
         if (err !== ''){
             toast.error(err, { style: { whiteSpace:'pre' } });
+            return false;
         }
+        return true;
     }
 
     return(
