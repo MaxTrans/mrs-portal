@@ -34,7 +34,7 @@ export default function Upload(){
     const dispatch = useDispatch();
     const initialValues: IUploadForm = {
         uploadfiles: uploadedFiles,
-        tat:'',
+        tat:'1',
         comment:'',
         uploadtype:true,
         companyId: user.companyId,
