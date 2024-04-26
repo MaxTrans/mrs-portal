@@ -34,7 +34,7 @@ export default function Upload(){
     const dispatch = useDispatch();
     const initialValues: IUploadForm = {
         uploadfiles: uploadedFiles,
-        tat:'',
+        tat:'1',
         comment:'',
         uploadtype:true,
         companyId: user.companyId,
@@ -50,7 +50,7 @@ export default function Upload(){
             is: false,
             then: () => Yup.string().required('Merge file name is required')
             })
-        });
+    });
     
 
     const handleSubmit = async (values: IUploadForm) => {
@@ -135,10 +135,9 @@ export default function Upload(){
                             <FormControl as="select" aria-label="Please select TAT" name="tat"
                             value={formik.values.tat}
                              onChange={formik.handleChange}>
-                                <option>Select</option>
-                                <option value="1">One hour</option>
-                                <option value="2">Two hours</option>
-                                <option value="3">Three hours</option>
+                                <option value="1">24 hours</option>
+                                <option value="2">Two days</option>
+                                <option value="3">Three days</option>
                             </FormControl>
                             </Col>
                         </Form.Group>
@@ -158,7 +157,7 @@ export default function Upload(){
                                 <UppyUpload customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
                             </Col>
                         </Form.Group>
-                        <Button variant="secondary" type="button" className="ml-3" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm();  }}>
+                        <Button variant="secondary" type="button" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm();  }}>
                             Cancel
                         </Button>
                     </Form>)}

@@ -5,7 +5,7 @@ import  IUploadFiles from '../Models/UploadFiles';
 const initialState = Array<IUploadFiles>();
 
 export const fileUploadSlice = createSlice({
-  name: 'auth',
+  name: 'upload',
   initialState,
   reducers: {
     setUploadedFiles: (state: Array<IUploadFiles>, action: PayloadAction<IUploadFiles>) => {

@@ -108,7 +108,7 @@ const App = () => {
             <Route path="/client-list" element={<ClientsList />} />
             <Route path="/intake" element={<Intake />} />
             {/* <Route path="/blank" element={<Blank />} /> */}
-            {/* <Route path="/profile" element={<Profile />} /> */}
+            <Route path="/profile" element={<Profile />} />
             <Route path="/" element={<Dashboard />} />
           </Route>
         </Route>

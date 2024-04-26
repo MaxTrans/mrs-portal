@@ -17,6 +17,8 @@ import UppyUpload from "@app/components/upload/uppyupload";
 import { removeUploadedFiles } from '@store/reducers/fileupload';import { saveAs } from 'file-saver';
 import DownloadZipService from '@app/services/downloadZipService';
 
+import ApiService from '@app/services/Api.service';
+import { AxiosResponse } from 'axios';
 
 interface Props { }
 
@@ -35,6 +37,7 @@ let grid1!: SlickGrid;
 const JobsList = () => {
 
   const user = useSelector((state: IUser) => store.getState().auth);
+  
   console.log(user);
   const dispatch = useDispatch();
   const [dataset, setData] = useState<any[]>([]);
@@ -58,8 +61,24 @@ const JobsList = () => {
   
 
   const uploadFiles = () => {
-    console.log(jobId);
-    handleUploadClose();
+    const files = {
+        jobId: jobId,
+        UploadFiles: store.getState().uploadfile,
+        createdBy: user.id
+    }
+    ApiService.requests.post('Upload/AdminFileUpload', files)
+            .then((response) => {
+                if(response.isSuccess)
+                {
+                    toast.success('File uploaded successfully');
+                    handleUploadClose();
+                }
+                else
+                {
+                    toast.error((response as AxiosResponse).data);
+                }
+            });
+    
   }
 
   let selectedStatus: string = '';

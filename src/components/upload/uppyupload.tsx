@@ -27,8 +27,10 @@ export default function UppyUpload(props: any) {
       autoProceed: false,
       debug: true,
       onBeforeUpload: (files:any) => {
-        if (props.onBeforeUpload)
-          return props.onBeforeUpload()
+        if (props.onBeforeUpload){
+          props.onBeforeUpload();
+        }
+        return true;
       }
     })
       .use(Dashboard, {
@@ -56,7 +58,7 @@ export default function UppyUpload(props: any) {
           return uploadedFiles.filter((x) => x.filename !== item.name);
         });
 
-        for (let i = 0; i <= files.length - 1; i++) {
+        for (let i = 0; i < files.length; i++) {
           dispatch(
             setUploadedFiles({
               fileId: files[i].id,
@@ -72,14 +74,13 @@ export default function UppyUpload(props: any) {
       .setOptions({
         restrictions: {
           allowedFileTypes: [".pdf",".docx"],
-          maxNumberOfFiles: props.admin === true ? 1 : 10
+          maxNumberOfFiles: (props.admin && props.admin === true ? 1 : 10)
         },
       }));
   }, []);
 
   useEffect(() => {
     return () => {
-      dispatch(removeUploadedFiles());
       uppy?.close({ reason: "unmount" });
     };
   }, []);
