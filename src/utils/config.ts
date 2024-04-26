@@ -10,6 +10,7 @@ const GridOptions: GridOption = {
     enableCheckboxSelector: false,
     enableRowSelection: true,
     enablePagination: true,
+    forceFitColumns: true,
     pagination: {
       pageSizes: [5, 10, 15, 20, 25, 50],
       pageSize: 15

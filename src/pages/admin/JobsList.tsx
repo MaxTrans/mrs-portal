@@ -1,4 +1,4 @@
-import { Column, Formatters, GridOption, OnEventArgs, SlickgridReact, SlickgridReactInstance, SlickGrid } from 'slickgrid-react';
+import { Column ,Formatters, GridOption, OnEventArgs, SlickgridReact, SlickgridReactInstance, SlickGrid } from 'slickgrid-react';
 import { useEffect, useRef, useState } from 'react';
 import JobService from '@app/services/jobService';
 import LookupService from '@app/services/lookupService';
@@ -66,27 +66,15 @@ const JobsList = () => {
   let selectedClient: string = '';
 
   const columns: Column[] = [
-    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true , maxWidth: 100 },
-    // { id: 'name', name: 'Name', field: 'name', sortable: true },
-    // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
+    //{ id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true , maxWidth: 100 },
+    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso, maxWidth: 100 },
     {
-      id: 'isSingleJob', name: 'Single Job', field: 'isSingleJob', sortable: true, maxWidth: 90,
-      formatter: (row, cell, value, colDef, dataContext) => {
-        return value ? '<i class="fa fa-check-square" aria-hidden="true"></i>' : '';
-      },
-      cssClass: 'text-center text-primary'
-    },
-    { id: 'AssignTo', name: 'Assign To', field: 'AssignTo', sortable: true },
-    { id: 'l1User', name: 'L1 User', field: 'l1User', sortable: true },
-    { id: 'l2User', name: 'L2 User', field: 'l2User', sortable: true },
-    { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true },
-    {
-      id: 'files', name: 'File', field: 'files', sortable: true,
+      id: 'files', name: 'Job Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? '<a heef="#" class="pointer">View Files</a>' : '';
+          return value.length > 0 ? '<a  target="_blank" href="#">View Files</a>' : '';
         else
-          return value.length > 0 ? '<a heef="#" class="pointer">' + value[0].FileName + '</a>' : '';
+          return value.length > 0 ? `<a href="#" class="pointer">${value[0].FileName}</a>` : '';
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
@@ -97,14 +85,28 @@ const JobsList = () => {
         }
         else {
           let fileInfo: any = args.dataContext.files[0];
-          downloadFile(fileInfo);
+          window.open(fileInfo.SourceFilePath,'_blank');
           
         }
       }
     },
-    { id: 'userName', name: 'Client', field: 'userName' },
-    { id: 'statusName', name: 'Status', field: 'statusName', },
-    { id: 'createdDateTime', name: 'Created Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso },
+    // { id: 'name', name: 'Name', field: 'name', sortable: true },
+    // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
+    {
+      id: 'isSingleJob', name: 'Job Type  ', field: 'isSingleJob', sortable: true, maxWidth: 120,
+      formatter: (row, cell, value, colDef, dataContext) => {
+        return value ? `M(${dataContext.files.length})` : `S(${dataContext.files.length})`;
+      },
+      cssClass: 'text-left px-4'
+    },
+    { id: 'AssignTo', name: 'Assign To', field: 'AssignTo', sortable: true, maxWidth: 100 },
+    { id: 'l1User', name: 'L1 User', field: 'l1User', sortable: true, maxWidth: 100 },
+    { id: 'l2User', name: 'L2 User', field: 'l2User', sortable: true, maxWidth: 100 },
+    { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true, maxWidth: 100 },
+    
+    { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
+    { id: 'statusName', name: 'Status', field: 'statusName', maxWidth: 100 },
+    
     {
       id: 'notification',
       field: 'unReadMessages',
@@ -210,6 +212,8 @@ const JobsList = () => {
         setData(data);
 
       }
+    }).catch(() => {
+      setLoader(false);
     }).finally(() => {
       setLoader(false);
     });
@@ -260,7 +264,7 @@ const JobsList = () => {
   }, []);
 
   const FileBody = () => {
-    let files = fileList.map((item: any) => <tr key={item.FileName}><td>{item.FileName}</td><td width={30} className='text-center'> <Button onClick={() => downloadFile(item)} className='btn-sm pointer'> <i className="fa fa-download" aria-hidden="true"></i></Button></td></tr>);
+    let files = fileList.map((item: any) => <tr key={item.FileName}><td>{item.FileName}</td><td width={30} className='text-center'> <a href={item.SourceFilePath} target='_blank'> <i className="fa fa-download" aria-hidden="true"></i></a></td></tr>);
 
     return (
       <table border={0} width={'100%'} className="table table-sm">

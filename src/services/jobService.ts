@@ -16,6 +16,22 @@ export const getJobs = (userId:string, JobStatus: string, createdBy: string) => 
     });
   };
 
+  export const deleteJob = (jobId:string) => {
+    return new Promise(async (res, rej) => {
+      ApiService.requests.get(`Job/deletejob?jobIdId=${jobId}`)
+      .then((response) => {
+        if(response.isSuccess)
+        {
+          return res(response);
+        }
+        else
+        {
+          return rej({ message: response.message });
+        }
+      })
+    });
+  };
+
   const JobService = {
     getJobs
 }

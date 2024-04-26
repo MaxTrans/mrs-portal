@@ -37,17 +37,12 @@ const ClientJobList = () => {
   let selectedClient: string = user.id;
 
   const columns: Column[] = [
-    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth: 100 },
+    //{ id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth: 100 },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
+    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso,maxWidth: 150 },
+    
     {
-      id: 'isSingleJob', name: 'Single Job', field: 'isSingleJob', sortable: true, maxWidth: 90,
-      formatter: (row, cell, value, colDef, dataContext) => {
-        return value ? '<i class="fa fa-check-square" aria-hidden="true"></i>' : '';
-      },
-      cssClass: 'text-center text-primary'
-    },
-    {
-      id: 'files', name: 'File', field: 'files', sortable: true,
+      id: 'files', name: 'Job Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
           return value.length > 0 ? `<a heef="#" class="pointer">${dataContext.name}.zip</>` : '';
@@ -68,14 +63,23 @@ const ClientJobList = () => {
         }
       }
     },
-    { id: 'statusName', name: 'Status', field: 'statusName', },
-    { id: 'createdDateTime', name: 'Created Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso },
+    {
+      id: 'isSingleJob', name: 'Job Type  ', field: 'isSingleJob', sortable: true, maxWidth: 120,
+      formatter: (row, cell, value, colDef, dataContext) => {
+        return value ? `M(${dataContext.files.length})` : `S(${dataContext.files.length})`;
+      },
+      cssClass: 'text-left px-4'
+    },
+    { id: 'pagecount', name: 'No. of Pages', field: 'pagecount', sortable: true, maxWidth: 120 },
+    { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
+    
     {
       id: 'notification',
       field: 'unReadMessages',
       excludeFromColumnPicker: true,
       excludeFromGridMenu: true,
       excludeFromHeaderMenu: true,
+      toolTip: 'Notifications',
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value == 0) {
           return '<div><i class="fa fa-commenting pointer"></i></div>';
@@ -97,6 +101,7 @@ const ClientJobList = () => {
     {
       id: 'delete',
       field: 'id',
+      toolTip: 'Delete',
       excludeFromColumnPicker: true,
       excludeFromGridMenu: true,
       excludeFromHeaderMenu: true,

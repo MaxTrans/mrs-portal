@@ -26,6 +26,7 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
 
   const [submitting, setSubmitting] = useState(false);
   const [jobId, setJObId] = useState('');
+  const [loding, setLoading] = useState(false);
   const [show, setNotificationShow] = useState(false);
   const notificationClose = () => setNotificationShow(false);
 
@@ -42,6 +43,7 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
   });
 
   const handleSubmit = async (values: INotificationForm) => {
+    setLoading(true);
     try {
       setSubmitting(true);
 
@@ -60,6 +62,7 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
 
       }
       setSubmitting(false);
+      setLoading(false);
 
     }
     catch (error) {
@@ -85,6 +88,10 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
     );
   }
 
+  function closeModal(){
+    notificationClose();
+    props.reloadGridData();
+  }
   const [notificationList, setNotificationData] = useState([]);
   useImperativeHandle(ref, () => ({
     getNotifications(jobId: string){
@@ -122,7 +129,7 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
 
   return (
     <>
-      <Modal size="lg" show={show} onHide={notificationClose} centered={false} scrollable={true}>
+      <Modal size="lg" show={show} onHide={closeModal} centered={false} scrollable={true}>
         <Modal.Header placeholder={'Files'} closeButton={true} className="py-2">
           <Modal.Title>Job Notifications</Modal.Title>
         </Modal.Header>
@@ -136,14 +143,16 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
 
             </div>
             <div className="col-md-1">
-              <Button className="btn-sm" onClick={saveForm.handleSubmit as any}>Post</Button>
+              <Button disabled={loding} className="btn-sm" onClick={saveForm.handleSubmit as any}>
+                Post
+              </Button>
             </div>
           </div>
 
           <ModalBodyContent></ModalBodyContent>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="default" type="button" onClick={notificationClose} className='btn-sm'>
+          <Button variant="default" onClick={closeModal} className='btn btn-sm'>
             {props.cancelBottonText}
           </Button>
         </Modal.Footer>

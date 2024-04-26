@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import  IUser from '../Models/User';
 import User from '../Models/User';
+import APIService from '@app/services/Api.service';
 
 
 const initialState = {} as User;
@@ -22,6 +23,7 @@ export const authSlice = createSlice({
       state.roleName = action.payload.roleName;
       state.token = action.payload.token;
       state.isAuthenticated = action.payload.isAuthenticated;
+      APIService.requests.setAutentication(action.payload.token);
     },
   },
 });

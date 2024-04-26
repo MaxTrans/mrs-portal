@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/04fad00d-503b-47f0-bd44-ddd73da6a624/resourceGroups/MAX-MRS/providers/Microsoft.Web/sites/maxtran-dev",
+    "appService.deploySubpath": "dist"
+}
