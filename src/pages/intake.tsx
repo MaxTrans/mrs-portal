@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormik, yupToFormErrors } from "formik";
 import { Form, FormControl, Row, Col, Button, Nav, Image } from "react-bootstrap";
 import * as Yup from 'yup';
-import UppyUpload from "@app/components/upload/uppyupload";
 import { PiFilesThin, PiFileThin } from "react-icons/pi";
 import { useSelector, useDispatch } from "react-redux"; 
+import { toast } from "react-toastify";
+import { AxiosResponse } from "axios";
+import { useNavigate } from "react-router-dom";
+import UppyUpload from "@app/components/upload/uppyupload";
 import store from '../store/store';
 import IUploadFiles from "@app/store/Models/UploadFiles";
 import { removeUploadedFiles } from '@store/reducers/fileupload';
 import ApiService from "@app/services/Api.service";
-import { toast } from "react-toastify";
-import { AxiosResponse } from "axios";
+import LookupService from '@app/services/lookupService';
 import IUser from "@app/store/Models/User";
-import { useNavigate } from "react-router-dom";
+
 
 interface IUploadForm{
     uploadfiles: any[],
@@ -27,14 +29,30 @@ export default function Upload(){
     const [submitting, setSubmitting] = useState(false);
     const [ isSingle, setIsSingle ] = useState(true);
     const [showForm, setShowForm ] = useState(false);
-    
+    const [tatLookup, setTatLookup] = useState([]);
+
     const navigate = useNavigate();
     const user = useSelector((state: IUser) => store.getState().auth);
     const uploadedFiles = useSelector((state: Array<IUploadFiles>) => store.getState().uploadfile);
     const dispatch = useDispatch();
+
+    const getTat = async () => {
+        const response: any = await LookupService.getStatus('tat');
+        if (response.isSuccess) {
+            setTatLookup(response.data.map((item: any) => {
+                return { 'value': item.id, 'label': item.value };
+          })
+          );
+        }
+      }
+
+    useEffect(() => {
+        getTat()
+    },[]);
+
     const initialValues: IUploadForm = {
         uploadfiles: uploadedFiles,
-        tat:'1',
+        tat: '',
         comment:'',
         uploadtype:true,
         companyId: user.companyId,
@@ -44,7 +62,7 @@ export default function Upload(){
 
     const validationSchema = Yup.object({
         uploadfiles: Yup.mixed().required('Please select a file'),
-        tat: Yup.string().required('TAT is required'),
+        //tat: Yup.string().required('TAT is required'),
         //comment: Yup.string().required('Comment is required'),
         mergeFilename: Yup.string().when('uploadtype', {
             is: false,
@@ -135,9 +153,9 @@ export default function Upload(){
                             <FormControl as="select" aria-label="Please select TAT" name="tat"
                             value={formik.values.tat}
                              onChange={formik.handleChange}>
-                                <option value="1">24 hours</option>
-                                <option value="2">Two days</option>
-                                <option value="3">Three days</option>
+                                {
+                                    tatLookup.map((opt: any) => <option value={opt.value}>{opt.label}</option>)
+                                }
                             </FormControl>
                             </Col>
                         </Form.Group>

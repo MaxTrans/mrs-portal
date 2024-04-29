@@ -1,6 +1,7 @@
 import { ContentHeader } from '@components';
 
 const Dashboard = () => {
+  console.log(import.meta.env);
   return (
     <div>
       <ContentHeader title="Dashboard" />

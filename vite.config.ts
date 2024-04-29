@@ -17,6 +17,6 @@ export default ({ mode }) => {
         '@modules': path.resolve(__dirname, './src/modules'),
         '@pages': path.resolve(__dirname, './src/pages'),
       },
-    },
+    }
   });
 };

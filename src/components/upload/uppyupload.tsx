@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useState } from "react";
 import { DashboardModal, DragDrop, ProgressBar, FileInput } from "@uppy/react";
 import Dashboard from "@uppy/dashboard";
 import DropTarget from "@uppy/drop-target";
@@ -14,14 +14,28 @@ import { setUploadedFiles, removeUploadedFiles } from "@store/reducers/fileuploa
 import store from "@app/store/store";
 import IUploadFiles from "@app/store/Models/UploadFiles";
 import AwsS3Multipart from "@uppy/aws-s3-multipart";
+import LookupService from "@app/services/lookupService";
 
 export default function UppyUpload(props: any) {
   let uppy: any;
+  const uploadUrl = import.meta.env.S3_URL;
+
+  const [ fileTypes, setFileTypes ] = useState([]);
   const dispatch = useDispatch();
   const uploadedFiles = useSelector(
     (state: Array<IUploadFiles>) => store.getState().uploadfile
   );
+  const getFileTypes = async () => {
+    const response: any = await LookupService.getStatus('filetypes');
+    if (response.isSuccess) {
+        setFileTypes(response.data)
+      }
+  }
+  
   useEffect(() => {
+    if (props.admin && props.admin === true){
+        getFileTypes();
+    }
     return (uppy = new Uppy({
       id: "uppyloader",
       autoProceed: false,
@@ -46,8 +60,8 @@ export default function UppyUpload(props: any) {
       })
       .use(AwsS3Multipart, {
           limit: 4,
-          //companionUrl:'http://localhost:8080/',
-          companionUrl: 'https://maxtra-uppy-server.azurewebsites.net/'
+          companionUrl: uploadUrl
+          //companionUrl: 'https://maxtra-uppy-server.azurewebsites.net/'
         },
       )
       //.use(XHRUpload, { endpoint: 'http://localhost:5107/api/Upload/Upload', formData: true, bundle: true, fieldName:'fileupload' })
@@ -66,6 +80,7 @@ export default function UppyUpload(props: any) {
               size: files[i].size,
               fileextension: files[i].extension,
               filepath: files[i].uploadURL,
+              fileType: props.fileType ? props.fileType : ''
             })
           );
         }
@@ -73,8 +88,7 @@ export default function UppyUpload(props: any) {
       })
       .setOptions({
         restrictions: {
-          //allowedFileTypes: props.filePreference ? props.filePreference.split(',') : ['.pdf','.doc','.docx'],
-          allowedFileTypes: ['.pdf','.doc','.docx'],
+          allowedFileTypes: props.filePreference ? props.filePreference : ['.pdf','.doc','.docx'],
           maxNumberOfFiles: (props.admin && props.admin === true ? 1 : 10)
         },
       }));

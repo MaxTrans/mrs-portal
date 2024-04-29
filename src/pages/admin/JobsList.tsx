@@ -1,4 +1,4 @@
-import { Column ,Formatters, GridOption, OnEventArgs, SlickgridReact, SlickgridReactInstance, SlickGrid } from 'slickgrid-react';
+import { Column ,Formatters, GridOption, OnEventArgs, SlickgridReact, SlickgridReactInstance, SlickGrid, MenuCommandItem } from 'slickgrid-react';
 import { useEffect, useRef, useState } from 'react';
 import JobService from '@app/services/jobService';
 import LookupService from '@app/services/lookupService';
@@ -38,7 +38,7 @@ const JobsList = () => {
 
   const user = useSelector((state: IUser) => store.getState().auth);
   
-  console.log(user);
+  
   const dispatch = useDispatch();
   const [dataset, setData] = useState<any[]>([]);
   const [usersList, setUsers] = useState([]);
@@ -46,8 +46,8 @@ const JobsList = () => {
   const [fileList, setFiles] = useState([]);
   const [mergeFileName, setMergeFileName] = useState('');
   const [showloader, setLoader] = useState(true);
-
-
+  const [uploadTypes, setUploadTypes] = useState([]);
+  const MenuCommandItems: MenuCommandItem[] = Array<MenuCommandItem>();
   // Files Modal 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -55,10 +55,29 @@ const JobsList = () => {
 
   // upload modal
   const [ jobId, setJobId ] = useState('');
+  const [ fileType, setFileType] = useState('');
   const [showUpload, setShowUpload] = useState(false);
   const handleUploadClose = () => { setShowUpload(false); setJobId(''); dispatch(removeUploadedFiles()); }
   const handleUploadShow = () => setShowUpload(true);
   
+  const renderUploadTypes = () => {
+      uploadTypes.map((item: any) => {
+        if (item.Selected)
+          MenuCommandItems.push(
+            {
+              command: 'upload',
+              title: `Upload ${item.Type} File`,
+              iconCssClass: 'fa fa-upload text-success',
+              positionOrder: 66,
+              action: (_e, args) => {
+                  handleUploadShow();
+                  setJobId(args.dataContext.id);
+                  setFileType(item.Type);
+              },
+            }
+        )}
+      )
+  }
 
   const uploadFiles = () => {
     const files = {
@@ -81,6 +100,25 @@ const JobsList = () => {
             });
     
   }
+
+  const fetchAllowedFileTypes = () => {
+    
+  ApiService.requests.get(`Upload/GetUploadPreferences/${user.id}`)
+      .then((response: any) => {
+          if(response.isSuccess)
+          {
+              setUploadTypes(response.data);
+              renderUploadTypes();
+          }
+          else
+          {
+              toast.error((response as AxiosResponse).data);
+          }
+      })
+      .catch((error) => console.log(error));
+
+  }
+
 
   let selectedStatus: string = '';
   let selectedClient: string = '';
@@ -188,17 +226,16 @@ const JobsList = () => {
         //commandTitle: 'Commands',
         // width: 200,
         commandItems: [
-          {
-            command: 'upload',
-            title: 'Upload File',
-            iconCssClass: 'fa fa-upload text-success',
-            positionOrder: 66,
-            action: (_e, args) => {
-              console.log(args.dataContext, args.column);
-              handleUploadShow();
-              setJobId(args.dataContext.id);
-            },
-          },
+          ...MenuCommandItems,
+          // {
+          //   command: 'upload',
+          //   title: 'Upload File',
+          //   iconCssClass: 'fa fa-upload text-success',
+          //   positionOrder: 66,
+          //   action: (_e, args) => {
+          //     fetchAllowedFileTypes(args);
+          //   },
+          // },
           {
             command: 'split',
             title: 'Split Job',
@@ -406,7 +443,7 @@ const JobsList = () => {
             Upload File
         </ModalHeader>
         <Modal.Body className='p-1'>
-            <UppyUpload admin={true} onCompleteCallback={uploadFiles} />
+            <UppyUpload admin={true} onCompleteCallback={uploadFiles} filePreference={fileType} />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleUploadClose} className='btn-sm'>

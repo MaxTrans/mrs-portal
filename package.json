@@ -53,6 +53,7 @@
     "@uppy/react": "^3.2.2",
     "@uppy/xhr-upload": "^3.6.4",
     "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
     "file-saver": "^2.0.5",
     "formik": "2.4.5",
     "i18next": "23.8.2",
