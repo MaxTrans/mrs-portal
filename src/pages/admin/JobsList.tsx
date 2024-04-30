@@ -59,31 +59,13 @@ const JobsList = () => {
   const [showUpload, setShowUpload] = useState(false);
   const handleUploadClose = () => { setShowUpload(false); setJobId(''); dispatch(removeUploadedFiles()); }
   const handleUploadShow = () => setShowUpload(true);
-  
-  const renderUploadTypes = () => {
-      uploadTypes.map((item: any) => {
-        if (item.Selected)
-          MenuCommandItems.push(
-            {
-              command: 'upload',
-              title: `Upload ${item.Type} File`,
-              iconCssClass: 'fa fa-upload text-success',
-              positionOrder: 66,
-              action: (_e, args) => {
-                  handleUploadShow();
-                  setJobId(args.dataContext.id);
-                  setFileType(item.Type);
-              },
-            }
-        )}
-      )
-  }
 
   const uploadFiles = () => {
     const files = {
         jobId: jobId,
         UploadFiles: store.getState().uploadfile,
-        createdBy: user.id
+        createdBy: user.id,
+        fileType: fileType
     }
     ApiService.requests.post('Upload/AdminFileUpload', files)
             .then((response) => {
@@ -100,25 +82,6 @@ const JobsList = () => {
             });
     
   }
-
-  const fetchAllowedFileTypes = () => {
-    
-  ApiService.requests.get(`Upload/GetUploadPreferences/${user.id}`)
-      .then((response: any) => {
-          if(response.isSuccess)
-          {
-              setUploadTypes(response.data);
-              renderUploadTypes();
-          }
-          else
-          {
-              toast.error((response as AxiosResponse).data);
-          }
-      })
-      .catch((error) => console.log(error));
-
-  }
-
 
   let selectedStatus: string = '';
   let selectedClient: string = '';
@@ -226,16 +189,34 @@ const JobsList = () => {
         //commandTitle: 'Commands',
         // width: 200,
         commandItems: [
-          ...MenuCommandItems,
-          // {
-          //   command: 'upload',
-          //   title: 'Upload File',
-          //   iconCssClass: 'fa fa-upload text-success',
-          //   positionOrder: 66,
-          //   action: (_e, args) => {
-          //     fetchAllowedFileTypes(args);
-          //   },
-          // },
+          {
+            command: 'upload',
+            title: 'Upload Word File',
+            iconCssClass: 'fa fa-upload text-success',
+            positionOrder: 66,
+            itemVisibilityOverride(args) {
+              return (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.doc' || x == '.docx') > -1
+            },
+            action: (_e, args) => {
+                setJobId(args.dataContext.id);
+                setFileType('.docx');
+                handleUploadShow();
+            },
+          },
+          {
+            command: 'upload',
+            title: 'Upload PDF File',
+            iconCssClass: 'fa fa-upload text-success',
+            positionOrder: 66,
+            itemVisibilityOverride(args) {
+              return (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdf') > -1
+            },
+            action: (_e, args) => {
+              setJobId(args.dataContext.id);
+                setFileType('.pdf');
+                handleUploadShow();
+            },
+          },
           {
             command: 'split',
             title: 'Split Job',
@@ -293,7 +274,6 @@ const JobsList = () => {
         });
         console.log(data);
         setData(data);
-
       }
     }).catch(() => {
       setLoader(false);
