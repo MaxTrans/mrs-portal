@@ -76,7 +76,7 @@ export default function Upload(){
             setSubmitting(true);
             values.uploadfiles = uploadedFiles
             values.uploadtype = isSingle
-           
+            values.tat = values.tat == '' ? (tatLookup.at(0) as any).value : values.tat;
             ApiService.requests.post('Upload/SaveJob', values)
             .then((response) => {
                 if(response.isSuccess)

@@ -18,7 +18,7 @@ import LookupService from "@app/services/lookupService";
 
 export default function UppyUpload(props: any) {
   let uppy: any;
-  const uploadUrl = import.meta.env.S3_URL;
+  const uploadUrl = import.meta.env.VITE_S3_URL;
 
   const [ fileTypes, setFileTypes ] = useState([]);
   const dispatch = useDispatch();
@@ -78,9 +78,8 @@ export default function UppyUpload(props: any) {
               fileId: files[i].id,
               filename: files[i].name,
               size: files[i].size,
-              fileextension: files[i].extension,
-              filepath: files[i].uploadURL,
-              fileType: props.fileType ? props.fileType : ''
+              fileextension: props.filePreference ? props.filePreference : '',
+              filepath: files[i].uploadURL
             })
           );
         }
@@ -88,7 +87,7 @@ export default function UppyUpload(props: any) {
       })
       .setOptions({
         restrictions: {
-          allowedFileTypes: props.filePreference ? props.filePreference : ['.pdf','.doc','.docx'],
+          allowedFileTypes: props.filePreference ? [ props.filePreference === '.pdflnk' ? '.pdf' : props.filePreference ] : ['.pdf','.doc','.docx'],
           maxNumberOfFiles: (props.admin && props.admin === true ? 1 : 10)
         },
       }));
