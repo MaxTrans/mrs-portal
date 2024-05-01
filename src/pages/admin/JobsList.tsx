@@ -65,7 +65,6 @@ const JobsList = () => {
         jobId: jobId,
         UploadFiles: store.getState().uploadfile,
         createdBy: user.id,
-        fileType: fileType
     }
     ApiService.requests.post('Upload/AdminFileUpload', files)
             .then((response) => {
@@ -215,6 +214,20 @@ const JobsList = () => {
               setJobId(args.dataContext.id);
                 setFileType('.pdf');
                 handleUploadShow();
+            },
+          },
+          {
+            command: 'upload',
+            title: 'Upload PDF Link File',
+            iconCssClass: 'fa fa-upload text-success',
+            positionOrder: 66,
+            itemVisibilityOverride(args) {
+              return (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdflnk') > -1
+            },
+            action: (_e, args) => {
+              setJobId(args.dataContext.id);
+              setFileType('.pdflnk');
+              handleUploadShow();
             },
           },
           {

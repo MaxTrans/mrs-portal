@@ -3,6 +3,5 @@ export default interface IUploadFiles{
     fileId: string,
     fileextension:string,
     filepath:string,
-    size:number,
-    fileType: string
+    size:number
 }
