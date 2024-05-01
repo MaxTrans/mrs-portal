@@ -16,9 +16,9 @@ export const getJobs = (userId:string, JobStatus: string, createdBy: string) => 
     });
   };
 
-  export const deleteJob = (jobId:string) => {
+  export const deleteJob = (jobId:string, userId:string) => {
     return new Promise(async (res, rej) => {
-      ApiService.requests.get(`Job/deletejob?jobIdId=${jobId}`)
+      ApiService.requests.get(`Job/deletejob?jobId=${jobId}&userId=${userId}`)
       .then((response) => {
         if(response.isSuccess)
         {
@@ -33,7 +33,8 @@ export const getJobs = (userId:string, JobStatus: string, createdBy: string) => 
   };
 
   const JobService = {
-    getJobs
+    getJobs,
+    deleteJob
 }
 
 export default JobService;

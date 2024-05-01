@@ -124,18 +124,21 @@ const ClientJobList = () => {
     },
     {
       id: 'delete',
-      field: 'id',
+      field: 'statusName',
       toolTip: 'Delete',
       excludeFromColumnPicker: true,
       excludeFromGridMenu: true,
       excludeFromHeaderMenu: true,
-      formatter: Formatters.icon,
-      params: { iconCssClass: 'fa fa-trash pointer' },
+      formatter: (row, cell, value, colDef, dataContext) => {
+         return value == "Pending" ? '<i class="fa fa-trash pointer"></i>' : '';
+      },
+      //params: { iconCssClass: 'fa fa-trash pointer' },
       minWidth: 30,
       maxWidth: 30,
       cssClass: 'text-danger',
       onCellClick: (_e: any, args: OnEventArgs) => {
-        alert('Delete');
+        if(confirm('Do you want to delete this record?'))
+          deleteJob(args.dataContext.id);
       },
     }
   ];
@@ -168,6 +171,17 @@ const ClientJobList = () => {
       }
     }).finally(() => {
       setLoader(false);
+    });
+  }
+
+  const deleteJob = (jobId:string) => {
+    JobService.deleteJob(jobId, user.id).then((response: any) => {
+      if (response.isSuccess) {
+        toast.success('Job deleted successfully.');
+        reloadGridData();
+      }
+    }).finally(() => {
+      
     });
   }
 
