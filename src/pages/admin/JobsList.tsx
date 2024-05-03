@@ -151,7 +151,16 @@ const JobsList = () => {
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName', maxWidth: 100 },
-    
+    { id: 'pagecount', name: 'No. of Pages', field: 'files', sortable: true,
+      formatter: (row, cell, value, colDef, dataContext) => {
+        let pageCount = 0;
+        value.forEach((item:any) => {
+            pageCount += item.PageCount ? item.PageCount : 0;
+        });
+        return pageCount.toString();
+      },
+      cssClass: 'text-center px-4'
+    },
     {
       id: 'notification',
       field: 'unReadMessages',
