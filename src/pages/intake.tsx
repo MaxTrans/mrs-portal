@@ -14,6 +14,7 @@ import { removeUploadedFiles } from '@store/reducers/fileupload';
 import ApiService from "@app/services/Api.service";
 import LookupService from '@app/services/lookupService';
 import IUser from "@app/store/Models/User";
+import PageLoader from "@app/utils/loading";
 
 
 interface IUploadForm{
@@ -90,9 +91,10 @@ export default function Upload(){
                 {
                     toast.error((response as AxiosResponse).data);
                 }
+                setSubmitting(false);
             });
 
-            setSubmitting(false);
+            
         }
         catch(error){
             console.log(error);
@@ -116,6 +118,8 @@ export default function Upload(){
     }
 
     return(
+        <>
+        {submitting && <PageLoader></PageLoader>}
         <section className="content">
             <div className="container-fluid">
                 <div className="card">
@@ -183,5 +187,6 @@ export default function Upload(){
                 </div>
             </div>
         </section>
+        </>
     )
 };
