@@ -37,7 +37,7 @@ const ClientJobList = () => {
   let selectedClient: string = user.id;
 
   const columns: Column[] = [
-    //{ id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth: 100 },
+    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth: 100 },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
     { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso,maxWidth: 150 },
     
@@ -73,7 +73,7 @@ const ClientJobList = () => {
     },
     { id: 'pagecount', name: 'No. of Pages', field: 'pagecount', sortable: true, maxWidth: 120 },
     {
-      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true,
+      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true, maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
@@ -96,7 +96,7 @@ const ClientJobList = () => {
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
-    
+    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 60 },
     {
       id: 'notification',
       field: 'unReadMessages',
@@ -130,7 +130,7 @@ const ClientJobList = () => {
       excludeFromGridMenu: true,
       excludeFromHeaderMenu: true,
       formatter: (row, cell, value, colDef, dataContext) => {
-         return value == "Pending" ? '<i class="fa fa-trash pointer"></i>' : '';
+         return value == "Pending" ? '<i class="fas fa-empty-set pointer"></i>' : '';
       },
       //params: { iconCssClass: 'fa fa-trash pointer' },
       minWidth: 30,

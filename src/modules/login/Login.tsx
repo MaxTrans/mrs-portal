@@ -42,7 +42,10 @@ const Login = () => {
       dispatch(setAuthentication(user));
 
       setAuthLoading(false);
-      navigate('/');
+      if (user.roleName.toLowerCase() == 'admin')
+        navigate('/admin-jobs');
+          else
+        navigate('/');
     } catch (error: any) {
       setAuthLoading(false);
       toast.error(error.message || 'Failed');

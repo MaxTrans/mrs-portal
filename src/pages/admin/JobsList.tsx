@@ -86,7 +86,7 @@ const JobsList = () => {
   let selectedClient: string = '';
 
   const columns: Column[] = [
-    //{ id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true , maxWidth: 100 },
+    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true , maxWidth: 100 },
     { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso, maxWidth: 100 },
     {
       id: 'files', name: 'Job Name', field: 'files', sortable: true,
@@ -126,7 +126,7 @@ const JobsList = () => {
     
     { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
     {
-      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true,
+      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true,maxWidth:100,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
@@ -151,7 +151,7 @@ const JobsList = () => {
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName', maxWidth: 100 },
-    
+    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 60 },
     {
       id: 'notification',
       field: 'unReadMessages',

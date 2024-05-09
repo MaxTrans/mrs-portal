@@ -20,6 +20,7 @@ const Jobs = () => {
   const dataset1:any[] = [];
 
   const columns: Column[] = [
+    { id: 'job-id', name: 'Job ID', field: 'jobId', sortable: true, minWidth: 60 },
     { id: 'name', name: 'Name', field: 'name', sortable: true, minWidth: 100 },
     { id: 'duration', name: 'Duration (days)', field: 'duration', sortable: true, minWidth: 100 },
     { id: '%', name: '% Complete', field: 'percentComplete', sortable: true, minWidth: 100 },
@@ -96,7 +97,7 @@ const Jobs = () => {
   }
   
   let loadData = async () => {
-    const response: any = await JobService.getJobs('','');
+    const response: any = await JobService.getJobs('','','');
     if(response.isSuccess)
     {
       response.data.forEach((item:any) => {
