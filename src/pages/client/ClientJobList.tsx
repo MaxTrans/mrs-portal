@@ -37,7 +37,7 @@ const ClientJobList = () => {
   let selectedClient: string = user.id;
 
   const columns: Column[] = [
-    //{ id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth: 100 },
+    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
     { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso,maxWidth: 150 },
     
@@ -45,9 +45,11 @@ const ClientJobList = () => {
       id: 'files', name: 'Job Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? `<a href="#" class="pointer">${dataContext.name}.zip</a>` : '';
-        else
-          return value.length > 0 ? `<a href="#" class="pointer">${value[0].FileName}</a>` : '';
+          return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a href="#" class="pointer">${dataContext.name}.zip</a>` : '';
+        else{
+          let icon =  getFileIcon(value[0].FileExtension);
+          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
+        }
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
@@ -67,7 +69,7 @@ const ClientJobList = () => {
     {
       id: 'isSingleJob', name: 'Job Type  ', field: 'isSingleJob', sortable: true, maxWidth: 120,
       formatter: (row, cell, value, colDef, dataContext) => {
-        return value ? `M(${dataContext.files.length})` : `S(${dataContext.files.length})`;
+        return value ? `<div title='Merge Upload'>M(${dataContext.files.length})</div>` : `<div title='Single Upload'>S(${dataContext.files.length})</div>`;
       },
       cssClass: 'text-left px-4'
     },
@@ -86,10 +88,12 @@ const ClientJobList = () => {
         if (value.length == 0)
           return '';
         else if(value.length == 1)
-          return value.length > 0 ? `<a href="#" class="pointer">${value[0].FileName}</a>` : '';
+        {
+          let icon =  getFileIcon(value[0].FileExtension);
+          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
+        }
         else
-        return '<a  target="_blank" href="#">uploadfiles.zip</a>';
-
+          return '<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#">uploadfiles.zip</a>';
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
@@ -219,6 +223,25 @@ const ClientJobList = () => {
   function downloadZip(mergeFileList: any [], mergeFileName: string){
       DownloadZipService.createZip(mergeFileList, mergeFileName, function() {});
   }
+
+  const getFileIcon = (fileExt:string) => {
+    //['pdf','.pdf','pdflink',''].indexOf(value[0].FileExtension) > -1 ?  '<i class="fa fa-file-pdf-o text-danger" aria-hidden="true"></i>' : '<i class="fa fa-file-word-o text-primary" aria-hidden="true"></i>';
+
+    switch(fileExt){
+      case 'pdf':
+      case '.pdf':
+      case 'pdflink':
+      case '.pdflink':
+        return 'fa-file-pdf-o text-danger'; break;
+      case 'doc':
+      case '.doc':
+      case 'docx':
+      case '.docx':
+        return 'fa-file-word-o text-primary'; break;
+      default: return 'fa-file text-info';
+    }
+
+  };
 
   useEffect(() => {
     getStatus();
