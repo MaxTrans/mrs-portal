@@ -71,7 +71,15 @@ const ClientJobList = () => {
       },
       cssClass: 'text-left px-4'
     },
-    { id: 'pagecount', name: 'No. of Pages', field: 'pagecount', sortable: true, maxWidth: 120 },
+    { id: 'pagecount', name: 'No. of Pages', field: 'files', sortable: true, maxWidth: 120,
+      formatter: (row, cell, value, colDef, dataContext) => {
+        let pageCount = 0;
+        value.forEach((item:any) => {
+            pageCount += item.PageCount ? item.PageCount : 0;
+        });
+        return pageCount.toString();
+      }
+    },
     {
       id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true, maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
