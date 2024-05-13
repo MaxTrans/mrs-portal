@@ -150,14 +150,14 @@ const MenuSidebar = () => {
   return (
     <aside className={`main-sidebar elevation-4 ${sidebarSkin}`}>
       <Link to="/" className="brand-link">
-        <StyledBrandImage
+        <img
           src="/img/logo.png"
           alt="Max Trans"
-          width={33} 
-          height={33}
-          rounded
+          
+          height={40}
+          
         />
-        <span className="brand-text font-weight-light">Max Trans</span>
+        <span className="brand-text font-weight-light pl-3">Max Trans</span>
       </Link>
       <div className="sidebar">
         <nav className="mt-2" style={{ overflowY: 'hidden' }}>

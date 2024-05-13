@@ -5,9 +5,14 @@ import User from '../store/Models/User';
 
 const PublicRoute = () => {
   const user = useSelector((state: User) => store.getState().auth);
-  const isLoggedIn = user.isAuthenticated;
-  const role =  user.roleName;
-  return isLoggedIn && role.toLowerCase() != 'admin' ? <Navigate to="/" /> : <Outlet />;
+  if(!user.isAuthenticated) 
+    return <Outlet />;
+  else if(user.roleName == 'Admin')
+    return <Navigate to="/admin-jobs" />;
+  else if(user.roleName == 'Client')
+    return <Navigate to="/client-jobs" />;
+  else
+    return <Navigate to="/" />;
 };
 
 export default PublicRoute;

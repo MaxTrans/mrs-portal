@@ -42,10 +42,9 @@ const Login = () => {
       dispatch(setAuthentication(user));
 
       setAuthLoading(false);
-      if (user.roleName.toLowerCase() == 'admin')
-        navigate('/admin-jobs');
-          else
-        navigate('/');
+      
+      navigate('/');
+
     } catch (error: any) {
       setAuthLoading(false);
       toast.error(error.message || 'Failed');
@@ -75,7 +74,14 @@ const Login = () => {
     <div className="login-box">
       <div className="card card-outline card-primary">
         <div className="card-header text-center">
-          <h3 style={{ fontWeight: 'bolder' }}>Login</h3>
+        <img
+            className="animation__shake"
+            src="/img/logo.png"
+            alt="Max Trans"
+            
+            width={100}
+          ></img>
+          {/* <h3 style={{ fontWeight: 'bolder' }}>Login</h3> */}
         </div>
         <div className="card-body">
           <p className="login-box-msg">{t('login.label.signIn')}</p>

@@ -70,13 +70,13 @@ const Main = () => {
     if (!isAppLoaded) {
       return (
         <div className="preloader flex-column justify-content-center align-items-center">
-          {/* <Image
+          <Image
             className="animation__shake"
             src="/img/logo.png"
-            alt="AdminLTELogo"
+            alt="Max Trans"
             height={60}
             width={60}
-          /> */}
+          />
           <i className="fa-solid fa-truck-fast" style={{ width:'60px', height:'60px' }}></i>
         </div>
       );
