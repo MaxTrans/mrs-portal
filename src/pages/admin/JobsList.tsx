@@ -352,7 +352,7 @@ const JobsList = () => {
   }
 
   const onStatusChange = (newValue: any, actionMeta: any) => {
-    selectedStatus = newValue ? newValue.value : '';
+    selectedStatus = newValue ? newValue.map((val: any, index: number) => val.value).join(',') : '';
   };
 
   const onClientChange = (newValue: any, actionMeta: any) => {
@@ -423,11 +423,11 @@ const JobsList = () => {
 
                   <div className='col-md-2 text-right'> Select Status</div>
                   <div className='col-md-3'>
-                    <Select options={statusList} isClearable={true} onChange={onStatusChange} />
+                    <Select options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}/>
                   </div>
                   <div className='col-md-2 text-right'> Select Client</div>
                   <div className='col-md-3'>
-                    <Select options={usersList} isClearable={true} onChange={onClientChange} />
+                    <Select options={usersList} isClearable={true} onChange={onClientChange} isMulti={true}/>
                   </div>
                   <div className='col-md-1'>
                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
