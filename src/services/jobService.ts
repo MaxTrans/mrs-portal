@@ -16,9 +16,9 @@ export const getJobs = (userId:string, JobStatus: string, createdBy: string) => 
     });
   };
 
-  export const deleteJob = (jobId:string, userId:string) => {
+  export const deleteJob = (jobId:string, userId:string, status: string) => {
     return new Promise(async (res, rej) => {
-      ApiService.requests.get(`Job/deletejob?jobId=${jobId}&userId=${userId}`)
+      ApiService.requests.get(`Job/deletejob?jobId=${jobId}&userId=${userId}&status=${status}`)
       .then((response) => {
         if(response.isSuccess)
         {

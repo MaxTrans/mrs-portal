@@ -52,7 +52,7 @@ export default function UppyUpload(props: any) {
         target: "#uppyUpload",
         showProgressDetails: true,
         proudlyDisplayPoweredByUppy: false,
-        height: 200,
+        height: 300,
         width: "100%",
       })
       .use(DropTarget, {

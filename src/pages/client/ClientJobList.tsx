@@ -24,6 +24,8 @@ const ClientJobList = () => {
   const [statusList, setStatus] = useState([]);
   const [fileList, setFiles] = useState([]);
   const [showloader, setLoader] = useState(true);
+  const [mergeFileName, setMergeFileName] = useState('');
+  const [selectedStatus, setStatusFilter] = useState('FAB98251-70C2-410B-BC09-9B66F9234E30,4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6');
 //  const [mergeFileName, setMergeFileName] = useState('');
 
   // Files Modal 
@@ -33,7 +35,6 @@ const ClientJobList = () => {
 
   const user = useSelector((state: IUser) => store.getState().auth);
 
-  let selectedStatus: string = '';
   let selectedClient: string = user.id;
 
   const columns: Column[] = [
@@ -93,12 +94,18 @@ const ClientJobList = () => {
           return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
         }
         else
-          return '<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#">uploadfiles.zip</a>';
+          return '<a  target="_blank" href="#">View Files</a>';
+          //return '<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#">uploadfiles.zip</a>';
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
         console.log(args.dataContext);
+        // if (args.dataContext.uploadFiles.length > 1) {
+        //   downloadZip(args.dataContext.uploadFiles, 'uploadfiles');
+        // }
         if (args.dataContext.uploadFiles.length > 1) {
-          downloadZip(args.dataContext.uploadFiles, 'uploadfiles');
+          setFiles(args.dataContext.uploadFiles);
+          setMergeFileName('uploadfiles');
+          handleShow();
         }
         else {
           let fileInfo: any = args.dataContext.uploadFiles[0];
@@ -134,24 +141,63 @@ const ClientJobList = () => {
         getNotifications(args.dataContext.id);
       },
     },
+    // {
+    //   id: 'delete',
+    //   field: 'statusName',
+    //   toolTip: 'Delete',
+    //   excludeFromColumnPicker: true,
+    //   excludeFromGridMenu: true,
+    //   excludeFromHeaderMenu: true,
+    //   formatter: (row, cell, value, colDef, dataContext) => {
+    //      return value == "Pending" ? '<i class="fa fa-trash pointer"></i>' : '';
+    //   },
+    //   //params: { iconCssClass: 'fa fa-trash pointer' },
+    //   minWidth: 30,
+    //   maxWidth: 30,
+    //   cssClass: 'text-danger',
+    //   onCellClick: (_e: any, args: OnEventArgs) => {
+    //     if(confirm('Do you want to delete this record?'))
+    //       deleteJob(args.dataContext.id);
+    //   },
+    // }
     {
-      id: 'delete',
+      id: 'action',
+      name: '',
       field: 'statusName',
-      toolTip: 'Delete',
-      excludeFromColumnPicker: true,
-      excludeFromGridMenu: true,
-      excludeFromHeaderMenu: true,
+      maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
-         return value == "Pending" ? '<i class="fas fa-empty-set pointer"></i>' : '';
+        if(value == 'Pending' || value == 'In Progress')
+          return `<div class="btn btn-default btn-xs">Action <i class="fa fa-caret-down"></i></div>`;
+        else
+        return '';
       },
-      //params: { iconCssClass: 'fa fa-trash pointer' },
-      minWidth: 30,
-      maxWidth: 30,
-      cssClass: 'text-danger',
-      onCellClick: (_e: any, args: OnEventArgs) => {
-        if(confirm('Do you want to delete this record?'))
-          deleteJob(args.dataContext.id);
-      },
+      cellMenu: {
+        //commandTitle: 'Commands',
+        // width: 200,
+        commandItems: [
+          {
+            command: 'Void',
+            title: 'Void',
+            iconCssClass: 'fa fa-trash text-danger',
+            positionOrder: 66,
+            // itemVisibilityOverride(args) {
+            //   return (args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'InProgress' )
+            // },
+            action: (_e, args) => {
+                  deleteJob(args.dataContext.id,'Void');
+            },
+          },
+          {
+            command: 'Duplicate',
+            title: 'Duplicate',
+            iconCssClass: 'fa fa-files-o text-info',
+            positionOrder: 66,
+            action: (_e, args) => {
+                  deleteJob(args.dataContext.id,'Duplicate');
+            },
+          },
+        ]
+      }
     }
   ];
   
@@ -159,6 +205,7 @@ const ClientJobList = () => {
   const gridOptions: GridOption = {
     ...ConfigSettings.gridOptions,
     ...{
+      enableCellMenu: true,
       datasetIdPropertyName: 'uid',
     }
   };
@@ -186,10 +233,10 @@ const ClientJobList = () => {
     });
   }
 
-  const deleteJob = (jobId:string) => {
-    JobService.deleteJob(jobId, user.id).then((response: any) => {
+  const deleteJob = (jobId:string, status: string) => {
+    JobService.deleteJob(jobId, user.id, status).then((response: any) => {
       if (response.isSuccess) {
-        toast.success('Job deleted successfully.');
+        toast.success(`Job ${status} successfully.`);
         reloadGridData();
       }
     }).finally(() => {
@@ -209,12 +256,14 @@ const ClientJobList = () => {
   }
 
   const onStatusChange = (newValue: any, actionMeta: any) => {
-    selectedStatus = newValue ? newValue.value : '';
+    let selStatus = newValue ? newValue.map((val: any, index: number) => val.value).join(',') : '';
+    setStatusFilter(selStatus);
   };
 
-  const onClientChange = (newValue: any, actionMeta: any) => {
-    selectedClient = newValue ? newValue.value : '';
-  };
+  const defaultStatus = [
+    {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
+    {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
+  ];
 
   function downloadFile(fileInfo: any){
     saveAs(fileInfo.SourceFilePath, fileInfo.FileName);
@@ -224,6 +273,9 @@ const ClientJobList = () => {
       DownloadZipService.createZip(mergeFileList, mergeFileName, function() {});
   }
 
+  function downloadZipPopUp(){
+    DownloadZipService.createZip(fileList, mergeFileName, function() {});
+  }
   const getFileIcon = (fileExt:string) => {
     //['pdf','.pdf','pdflink',''].indexOf(value[0].FileExtension) > -1 ?  '<i class="fa fa-file-pdf-o text-danger" aria-hidden="true"></i>' : '<i class="fa fa-file-word-o text-primary" aria-hidden="true"></i>';
 
@@ -249,7 +301,7 @@ const ClientJobList = () => {
   }, []);
 
   const FileBody = () => {
-    let files = fileList.map((item: any) => <tr key={item.FileName}><td>{item.FileName}</td><td width={30} className='text-center'> <Button onClick={() => downloadFile(item)} className='btn-sm pointer'> <i className="fa fa-download" aria-hidden="true"></i></Button></td></tr>);
+    let files = fileList.map((item: any) => <tr key={item.FileName}><td><i className={"fa " + getFileIcon(item.FileExtension)} aria-hidden="true"></i> {item.FileName}</td><td width={30} className='text-center'> <a href={item.SourceFilePath} target='_blank'> <i className="fa fa-download" aria-hidden="true"></i></a></td></tr>);
 
     return (
       <table border={0} width={'100%'} className="table table-sm">
@@ -265,6 +317,7 @@ const ClientJobList = () => {
       </table>
     );
   }
+
 
   // Notifications
   function reloadGridData() {
@@ -297,7 +350,7 @@ const ClientJobList = () => {
 
                   <div className='col-md-2 text-right'> Select Status</div>
                   <div className='col-md-3'>
-                    <Select options={statusList} isClearable={true} onChange={onStatusChange} />
+                    <Select defaultValue={defaultStatus} options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
                   </div>
                   <div className='col-md-1'>
                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
@@ -328,7 +381,7 @@ const ClientJobList = () => {
           <Button variant="secondary" onClick={handleClose} className='btn-sm'>
             Close
           </Button>
-          <Button variant="primary" onClick={handleClose} className='btn-sm'>
+          <Button variant="primary" onClick={downloadZipPopUp} className='btn-sm'>
             Download Zip
           </Button>
         </Modal.Footer>
