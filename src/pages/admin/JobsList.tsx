@@ -47,6 +47,9 @@ const JobsList = () => {
   const [mergeFileName, setMergeFileName] = useState('');
   const [showloader, setLoader] = useState(true);
   const [uploadTypes, setUploadTypes] = useState([]);
+  const [selectedStatus, setStatusFilter] = useState('FAB98251-70C2-410B-BC09-9B66F9234E30,4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6');
+  const [selectedClient, setClientFilter] = useState('');
+
   const MenuCommandItems: MenuCommandItem[] = Array<MenuCommandItem>();
   // Files Modal 
   const [show, setShow] = useState(false);
@@ -81,10 +84,6 @@ const JobsList = () => {
             });
     
   }
-
-  let selectedStatus: string = '';
-  let selectedClient: string = '';
-
   const columns: Column[] = [
     { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true },
     { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso, maxWidth: 100 },
@@ -250,6 +249,9 @@ const JobsList = () => {
             title: 'Split Job',
             iconCssClass: 'fa fa-clone text-info',
             positionOrder: 66,
+            itemVisibilityOverride(args) {
+              return (args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'In Progress');
+            },
             action: (_e, args) => {
               console.log(args.dataContext, args.column);
               alert('Split');
@@ -258,6 +260,9 @@ const JobsList = () => {
           {
             command: 'merge', title: 'Merge Job', positionOrder: 64,
             iconCssClass: 'fa fa-compress text-info', cssClass: 'red', textCssClass: 'text-italic color-danger-light',
+            itemVisibilityOverride(args) {
+              return (args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'In Progress');
+            },
             action: (_e, args) => {
               console.log(args.dataContext, args.column);
               alert('Merge');
@@ -343,20 +348,27 @@ const JobsList = () => {
   let getStatus = async () => {
     const response: any = await LookupService.getStatus('status');
     if (response.isSuccess) {
-      setStatus(response.data.map((item: any) => {
-        return { 'value': item.id, 'label': item.value };
-      })
-      );
+    let status = response.data.map((item: any) => {
+      return { 'value': item.id, 'label': item.value };
+    });
+
+      setStatus(status)
+      // set default status on load
+      // let defaultFilters: any[] = ['Pending','In Progress'];
+      // let defaultStatus = status.filter((item:any) => defaultFilters.indexOf(item.label) > -1).map((item:any) => item.value).join(',');
+      // setStatusFilter(defaultStatus);
       console.log(response.data);
     }
   }
 
   const onStatusChange = (newValue: any, actionMeta: any) => {
-    selectedStatus = newValue ? newValue.map((val: any, index: number) => val.value).join(',') : '';
+    let selStatus = newValue ? newValue.map((val: any, index: number) => val.value).join(',') : '';
+    setStatusFilter(selStatus);
   };
 
   const onClientChange = (newValue: any, actionMeta: any) => {
-    selectedClient = newValue ? newValue.value : '';
+    let selClients = newValue ? newValue.map((val: any, index: number) => val.value).join(',') : '';
+    setClientFilter(selClients);
   };
 
   function downloadFile(fileInfo: any){
@@ -366,6 +378,12 @@ const JobsList = () => {
   function downloadZip(){
       DownloadZipService.createZip(fileList, mergeFileName, function() {});
   }
+
+  const defaultStatus = [
+    {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
+    {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
+  ];
+  
 
   useEffect(() => {
     getUsers();
@@ -423,11 +441,11 @@ const JobsList = () => {
 
                   <div className='col-md-2 text-right'> Select Status</div>
                   <div className='col-md-3'>
-                    <Select options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}/>
+                    <Select defaultValue={defaultStatus} options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
                   </div>
                   <div className='col-md-2 text-right'> Select Client</div>
                   <div className='col-md-3'>
-                    <Select options={usersList} isClearable={true} onChange={onClientChange} isMulti={true}/>
+                    <Select options={usersList} isClearable={true} onChange={onClientChange} isMulti={true} closeMenuOnSelect={false}/>
                   </div>
                   <div className='col-md-1'>
                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
