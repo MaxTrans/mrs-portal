@@ -49,6 +49,9 @@ const JobsList = () => {
   const [uploadTypes, setUploadTypes] = useState([]);
   const [selectedStatus, setStatusFilter] = useState('FAB98251-70C2-410B-BC09-9B66F9234E30,4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6');
   const [selectedClient, setClientFilter] = useState('');
+  const [filename, setFilename] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const MenuCommandItems: MenuCommandItem[] = Array<MenuCommandItem>();
   // Files Modal 
@@ -316,7 +319,7 @@ const JobsList = () => {
 
   const loadData = () => {
     setLoader(true);
-    JobService.getJobs(user.id, selectedStatus, selectedClient).then((response: any) => {
+    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
           item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
@@ -447,7 +450,27 @@ const JobsList = () => {
                   <div className='col-md-3'>
                     <Select options={usersList} isClearable={true} onChange={onClientChange} isMulti={true} closeMenuOnSelect={false}/>
                   </div>
-                  <div className='col-md-1'>
+                </div>
+                <div className='row pt-2'>
+                  <div className='col-md-2 text-right'> Filename</div>
+                  <div className='col-md-3'>
+                    <input type='text' name='txtFilename' onChange={(e) => setFilename(e.target.value)} value={filename} />
+                  </div>
+                
+                </div>
+                <div className='row pt-2'>
+                <div className='col-md-2 text-right'> From Date</div>
+                  <div className='col-md-3'>
+                  <input type='date' name='txtFromDate' onChange={(e) => setFromDate(e.target.value)} value={fromDate} />
+                  </div>
+                  <div className='col-md-2 text-right'> To Date</div>
+                  <div className='col-md-3'>
+                  <input type='date' name='txtToDate' onChange={(e) => setToDate(e.target.value)} value={toDate} />
+                  </div>
+
+                </div>
+                <div className='row pt-2'>
+                <div className='col-md-12 d-flex justify-content-md-center'>
                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
                   </div>
                 </div>
