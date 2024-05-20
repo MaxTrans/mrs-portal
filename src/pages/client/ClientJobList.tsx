@@ -25,9 +25,12 @@ const ClientJobList = () => {
   const [fileList, setFiles] = useState([]);
   const [showloader, setLoader] = useState(true);
   const [mergeFileName, setMergeFileName] = useState('');
-  const [selectedStatus, setStatusFilter] = useState('FAB98251-70C2-410B-BC09-9B66F9234E30,4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6');
+  const [selectedStatus, setStatusFilter] = useState('');
+  const [filename, setFilename] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 //  const [mergeFileName, setMergeFileName] = useState('');
-
+  // const [defaultStatus, setDefaultStatus] = useState([]);
   // Files Modal 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -36,6 +39,11 @@ const ClientJobList = () => {
   const user = useSelector((state: IUser) => store.getState().auth);
 
   let selectedClient: string = user.id;
+
+  const defaultStatus = [
+    {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
+    {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
+  ];
 
   const columns: Column[] = [
     { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true },
@@ -216,7 +224,7 @@ const ClientJobList = () => {
 
   const loadData = () => {
     setLoader(true);
-    JobService.getJobs(user.id, selectedStatus, selectedClient).then((response: any) => {
+    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
           item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
@@ -244,26 +252,40 @@ const ClientJobList = () => {
     });
   }
 
+
+
   let getStatus = async () => {
-    const response: any = await LookupService.getStatus('status');
-    if (response.isSuccess) {
-      setStatus(response.data.map((item: any) => {
-        return { 'value': item.id, 'label': item.value };
-      })
-      );
-      console.log(response.data);
-    }
+    LookupService.getStatus('status').then(
+      (response: any) => {
+        if (response.isSuccess) {
+          setStatus(response.data.map((item: any) => {
+            return { 'value': item.id, 'label': item.value };
+          }));
+          let status = response.data.map((item: any) =>   {
+            if (item.value == 'Pending' || item.value == 'In Progress') 
+                return item.id 
+          }).join(',');
+          status = status.split(',').filter((x: any) => { if (x.trim() != '') return x}).join(',');
+          let dStatus = response.data.map((item: any) => { 
+            if (item.value == 'Pending' || item.value == 'In Progress') 
+              return { 'value': item.id, 'label': item.value } 
+          });
+          dStatus = dStatus.filter((element: any) => !!element);
+          setStatusFilter(status);
+        
+      }});
+    
   }
+    
+    
+  
 
   const onStatusChange = (newValue: any, actionMeta: any) => {
     let selStatus = newValue ? newValue.map((val: any, index: number) => val.value).join(',') : '';
     setStatusFilter(selStatus);
   };
 
-  const defaultStatus = [
-    {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
-    {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
-  ];
+  
 
   function downloadFile(fileInfo: any){
     saveAs(fileInfo.SourceFilePath, fileInfo.FileName);
@@ -297,8 +319,11 @@ const ClientJobList = () => {
 
   useEffect(() => {
     getStatus();
-    loadData();
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [selectedStatus]);
 
   const FileBody = () => {
     let files = fileList.map((item: any) => <tr key={item.FileName}><td><i className={"fa " + getFileIcon(item.FileExtension)} aria-hidden="true"></i> {item.FileName}</td><td width={30} className='text-center'> <a href={item.SourceFilePath} target='_blank'> <i className="fa fa-download" aria-hidden="true"></i></a></td></tr>);
@@ -352,7 +377,22 @@ const ClientJobList = () => {
                   <div className='col-md-3'>
                     <Select defaultValue={defaultStatus} options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
                   </div>
-                  <div className='col-md-1'>
+                  <div className='col-md-2 text-right'> Filename</div>
+                  <div className='col-md-3'>
+                    <input type='text' name='txtFilename' onChange={(e) => setFilename(e.target.value)} value={filename} />
+                  </div>
+                 
+                </div>
+                <div className='row pt-2'>
+                <div className='col-md-2 text-right'> From Date</div>
+                  <div className='col-md-3'>
+                  <input type='date' name='txtFromDate' onChange={(e) => setFromDate(e.target.value)} value={fromDate} />
+                  </div>
+                  <div className='col-md-2 text-right'> To Date</div>
+                  <div className='col-md-3'>
+                  <input type='date' name='txtToDate' onChange={(e) => setToDate(e.target.value)} value={toDate} />
+                  </div>
+                <div className='col-md-1'>
                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
                   </div>
                 </div>

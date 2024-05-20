@@ -73,12 +73,13 @@ export default function UppyUpload(props: any) {
         });
 
         for (let i = 0; i < files.length; i++) {
+          const extension = '.' + files[i].name.split('.')[1];
           dispatch(
             setUploadedFiles({
               fileId: files[i].id,
               filename: files[i].name,
               size: files[i].size,
-              fileextension: props.filePreference ? props.filePreference : '',
+              fileextension: props.filePreference && props.filePreference != '' ? props.filePreference : extension,
               filepath: files[i].uploadURL
             })
           );
