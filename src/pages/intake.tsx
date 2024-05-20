@@ -175,7 +175,7 @@ export default function Upload(){
                             <div className="col-sm-2">
                                 Upload: 
                             </div>
-                            <Col sm="6">
+                            <Col sm="10">
                                 <UppyUpload filePreference={''} customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
                             </Col>
                         </Form.Group>
