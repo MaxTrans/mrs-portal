@@ -46,7 +46,7 @@ const ClientJobList = () => {
   ];
 
   const columns: Column[] = [
-    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true },
+    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth:80 },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
     { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso,maxWidth: 150 },
     
@@ -372,29 +372,40 @@ const ClientJobList = () => {
               </div>
               <div className="card-body">
                 <div className='row'>
+                <div className="col-md-3">
+                  <div className="form-group">
+                      <label>Select Status </label>
+                      <Select defaultValue={defaultStatus} options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
+                  </div>
+                </div>  
 
-                  <div className='col-md-2 text-right'> Select Status</div>
-                  <div className='col-md-3'>
-                    <Select defaultValue={defaultStatus} options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
+                <div className="col-md-3">
+                  <div className="form-group">
+                      <label>Filename </label>
+                      <input className="form-control" type='text' name='txtFilename' onChange={(e) => setFilename(e.target.value)} value={filename} />
                   </div>
-                  <div className='col-md-2 text-right'> Filename</div>
-                  <div className='col-md-3'>
-                    <input type='text' name='txtFilename' onChange={(e) => setFilename(e.target.value)} value={filename} />
+                </div>  
+
+                <div className="col-md-2">
+                  <div className="form-group">
+                      <label>From Date </label>
+                      <input className="form-control" type='date' name='txtFromDate' onChange={(e) => setFromDate(e.target.value)} value={fromDate} />
                   </div>
+                </div>  
+
+                <div className="col-md-2">
+                  <div className="form-group">
+                      <label>To Date </label>
+                      <input className="form-control" type='date' name='txtToDate' onChange={(e) => setToDate(e.target.value)} value={toDate} />
+                  </div>
+                </div>  
+                <div className="col-md-2">
+                  <div className="form-group">
+                      <label>&nbsp; </label><br></br>
+                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
+                  </div>
+                </div>  
                  
-                </div>
-                <div className='row pt-2'>
-                <div className='col-md-2 text-right'> From Date</div>
-                  <div className='col-md-3'>
-                  <input type='date' name='txtFromDate' onChange={(e) => setFromDate(e.target.value)} value={fromDate} />
-                  </div>
-                  <div className='col-md-2 text-right'> To Date</div>
-                  <div className='col-md-3'>
-                  <input type='date' name='txtToDate' onChange={(e) => setToDate(e.target.value)} value={toDate} />
-                  </div>
-                <div className='col-md-1'>
-                    <Button variant="primary" onClick={reloadGridData}>Search</Button>
-                  </div>
                 </div>
                 <div className='row pt-4'>
                   <div className='col-md-12' style={{ zIndex: '0' }}>
