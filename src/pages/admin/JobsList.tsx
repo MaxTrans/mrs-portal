@@ -95,7 +95,7 @@ const JobsList = () => {
       id: 'files', name: 'Job Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? '<a  target="_blank" href="#">View Files</a>' : '';
+          return value.length > 0 ? `<a  target="_blank" href="#">${dataContext.name}</a>` : '';
         else{
           let icon =  getFileIcon(value[0].FileExtension);
           return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
