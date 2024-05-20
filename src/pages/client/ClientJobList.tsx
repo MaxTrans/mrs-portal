@@ -15,11 +15,12 @@ import { useSelector } from 'react-redux';
 import DownloadZipService from '@app/services/downloadZipService';
 import { saveAs } from 'file-saver';
 
-let reactGrid!: SlickgridReactInstance;
+//let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
 
 const ClientJobList = () => {
 
+  const [reactGrid, setGrid] = useState<SlickgridReactInstance>();
   const [dataset, setData] = useState<any[]>([]);
   const [statusList, setStatus] = useState([]);
   const [fileList, setFiles] = useState([]);
@@ -219,10 +220,10 @@ const ClientJobList = () => {
   };
 
   function reactGridReady(reactGridInstance: SlickgridReactInstance) {
-    reactGrid = reactGridInstance;
+    setGrid(reactGridInstance);
   }
 
-  const loadData = () => {
+  const loadData = (isreload:boolean) => {
     setLoader(true);
     JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate).then((response: any) => {
       if (response.isSuccess) {
@@ -233,8 +234,10 @@ const ClientJobList = () => {
           return item;
         });
         console.log(data);
-        setData(data);
-
+        if(reactGrid && isreload)
+          reactGrid.dataView.setItems(data)
+        else
+          setData(data);
       }
     }).finally(() => {
       setLoader(false);
@@ -322,7 +325,7 @@ const ClientJobList = () => {
   }, []);
 
   useEffect(() => {
-    loadData();
+    loadData(false);
   }, [selectedStatus]);
 
   const FileBody = () => {
@@ -346,7 +349,7 @@ const ClientJobList = () => {
 
   // Notifications
   function reloadGridData() {
-    loadData();
+    loadData(true);
   };
   const childRef: any = useRef();
 
@@ -402,7 +405,7 @@ const ClientJobList = () => {
                 <div className="col-md-2">
                   <div className="form-group">
                       <label>&nbsp; </label><br></br>
-                     <Button variant="primary" onClick={reloadGridData}>Search</Button>
+                     <Button variant="primary" onClick={(e) => loadData(false)}>Search</Button>
                   </div>
                 </div>  
                  

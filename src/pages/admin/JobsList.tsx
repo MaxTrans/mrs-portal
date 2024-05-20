@@ -30,7 +30,7 @@ interface State {
   columnDefinitions1: Column[];
   columnDefinitions2: Column[];
 }
-let reactGrid!: SlickgridReactInstance;
+//let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
 
 
@@ -40,6 +40,7 @@ const JobsList = () => {
   
   
   const dispatch = useDispatch();
+  const [reactGrid, setGrid] = useState<SlickgridReactInstance>();
   const [dataset, setData] = useState<any[]>([]);
   const [usersList, setUsers] = useState([]);
   const [statusList, setStatus] = useState([]);
@@ -295,7 +296,7 @@ const JobsList = () => {
   };
 
   function reactGridReady(reactGridInstance: SlickgridReactInstance) {
-    reactGrid = reactGridInstance;
+    setGrid(reactGridInstance);
   }
 
   const getFileIcon = (fileExt:string) => {
@@ -317,7 +318,7 @@ const JobsList = () => {
 
   };
 
-  const loadData = () => {
+  const loadData = (isreload:boolean) => {
     setLoader(true);
     JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate).then((response: any) => {
       if (response.isSuccess) {
@@ -328,7 +329,11 @@ const JobsList = () => {
           return item;
         });
         console.log(data);
-        setData(data);
+        if(isreload && reactGrid){
+           reactGrid.dataView.setItems(data);
+        }
+        else
+          setData(data);
       }
     }).catch(() => {
       setLoader(false);
@@ -391,7 +396,7 @@ const JobsList = () => {
   useEffect(() => {
     getUsers();
     getStatus();
-    loadData();
+    loadData(false);
   }, []);
 
   const FileBody = () => {
@@ -415,7 +420,7 @@ const JobsList = () => {
   // Notifications
 
   function reloadGridData() {
-    loadData();
+    loadData(true);
   };
   const childRef: any = useRef();
 
@@ -480,7 +485,7 @@ const JobsList = () => {
                 <div className="col-md-1">
                   <div className="form-group">
                       <label>&nbsp; </label><br></br>
-                      <Button variant="primary" onClick={reloadGridData}>Search</Button>
+                      <Button variant="primary" onClick={(e) => loadData(false)}>Search</Button>
                   </div>
                 </div>  
                 </div>
