@@ -32,9 +32,26 @@ export const getJobs = (userId:string, JobStatus: string, createdBy: string, fil
     });
   };
 
+  export const updateJobStatus = (jobId:string, userId:string, status: string) => {
+    return new Promise(async (res, rej) => {
+      ApiService.requests.get(`Job/updateJobStatus?jobId=${jobId}&userId=${userId}&status=${status}`)
+      .then((response) => {
+        if(response.isSuccess)
+        {
+          return res(response);
+        }
+        else
+        {
+          return rej({ message: response.message });
+        }
+      })
+    });
+  };
+
   const JobService = {
     getJobs,
-    deleteJob
+    deleteJob,
+    updateJobStatus
 }
 
 export default JobService;
