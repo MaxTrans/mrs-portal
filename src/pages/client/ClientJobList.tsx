@@ -14,6 +14,7 @@ import store from '@app/store/store';
 import { useSelector } from 'react-redux';
 import DownloadZipService from '@app/services/downloadZipService';
 import { saveAs } from 'file-saver';
+import { useNavigate } from "react-router-dom";
 import { blob } from 'stream/consumers';
 import { faL } from '@fortawesome/free-solid-svg-icons';
 
@@ -40,6 +41,7 @@ const ClientJobList = () => {
   const handleShow = () => setShow(true);
 
   const user = useSelector((state: IUser) => store.getState().auth);
+  const navigate = useNavigate();
 
   let selectedClient: string = user.id;
 
@@ -76,6 +78,7 @@ const ClientJobList = () => {
           //window.open(fileInfo.SourceFilePath,'_blank');
           downloadFile(fileInfo);
         }
+        updateJobStatus(args.dataContext.id,'In Progress');
       }
     },
     {
@@ -233,6 +236,17 @@ const ClientJobList = () => {
     });
   }
 
+  const updateJobStatus = (jobId:string, status: string) => {
+    JobService.updateJobStatus(jobId, user.id, status).then((response: any) => {
+      if (response.isSuccess) {
+        //toast.success(`Job ${status} successfully.`);
+        reloadGridData();
+      }
+    }).finally(() => {
+      
+    });
+  }
+
 
 
   let getStatus = async () => {
@@ -349,8 +363,18 @@ const ClientJobList = () => {
         <section className="content">
           <div className="container-fluid">
             <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">Jobs</h3>
+              <div className="card-header d-flex">
+                <div className='col-md-4'>
+                  <h3 className="card-title">Jobs</h3>
+                </div>
+                <div className='col-md-8 d-flex flex-row-reverse'>
+                  <Button style={{ backgroundColor:'#b8f9d3', color:'black', marginLeft:'5px'}} className='btn-sm' onClick={(e) => navigate('/intake', { state: { isSingle: true } })}>
+                    Merge Upload
+                  </Button>
+                  <Button  style={{ backgroundColor:'#dce9ff', color:'black' }} className='btn-sm' onClick={(e) => navigate('/intake', { state: { isSingle: false } })}>
+                    Single Upload
+                  </Button>
+                </div>
               </div>
               <div className="card-body">
                 <div className='row'>

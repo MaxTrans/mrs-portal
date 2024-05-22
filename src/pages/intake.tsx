@@ -15,6 +15,7 @@ import ApiService from "@app/services/Api.service";
 import LookupService from '@app/services/lookupService';
 import IUser from "@app/store/Models/User";
 import PageLoader from "@app/utils/loading";
+import { useLocation } from 'react-router-dom';
 
 
 interface IUploadForm{
@@ -36,6 +37,7 @@ export default function Upload(){
     const user = useSelector((state: IUser) => store.getState().auth);
     const uploadedFiles = useSelector((state: Array<IUploadFiles>) => store.getState().uploadfile);
     const dispatch = useDispatch();
+    const location = useLocation();
 
     const getTat = async () => {
         const response: any = await LookupService.getStatus('tat');
@@ -48,6 +50,13 @@ export default function Upload(){
       }
 
     useEffect(() => {
+        const isSingleParam = location.state?.isSingle;
+        if(location.state && isSingleParam){
+            setIsSingle(true); setShowForm(true); formik.values.uploadtype = false
+        }
+        else if (location.state && !isSingleParam) {
+            setIsSingle(false); setShowForm(true); formik.values.uploadtype = true;
+        }
         getTat()
     },[]);
 
@@ -179,7 +188,7 @@ export default function Upload(){
                                 <UppyUpload filePreference={''} customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
                             </Col>
                         </Form.Group>
-                        <Button variant="secondary" type="button" onClick={() => { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm();  }}>
+                        <Button variant="secondary" type="button" onClick={() => { if (location.state) { navigate('/client-jobs') } else { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm(); } }}>
                             Cancel
                         </Button>
                     </Form>)}
