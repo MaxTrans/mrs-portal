@@ -14,6 +14,8 @@ import store from '@app/store/store';
 import { useSelector } from 'react-redux';
 import DownloadZipService from '@app/services/downloadZipService';
 import { saveAs } from 'file-saver';
+import { blob } from 'stream/consumers';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 //let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
@@ -49,7 +51,7 @@ const ClientJobList = () => {
   const columns: Column[] = [
     { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth:80 },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
-    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso,maxWidth: 150 },
+    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso,maxWidth: 100 },
     
     {
       id: 'files', name: 'Job Name', field: 'files', sortable: true,
@@ -71,8 +73,8 @@ const ClientJobList = () => {
         }
         else {
           let fileInfo: any = args.dataContext.files[0];
-          window.open(fileInfo.SourceFilePath,'_blank');
-          
+          //window.open(fileInfo.SourceFilePath,'_blank');
+          downloadFile(fileInfo);
         }
       }
     },
@@ -97,34 +99,29 @@ const ClientJobList = () => {
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
-        else if(value.length == 1)
-        {
-          let icon =  getFileIcon(value[0].FileExtension);
-          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
-        }
-        else
-          return '<a  target="_blank" href="#">View Files</a>';
-          //return '<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#">uploadfiles.zip</a>';
-      },
-      onCellClick: (e: Event, args: OnEventArgs) => {
-        console.log(args.dataContext);
-        // if (args.dataContext.uploadFiles.length > 1) {
-        //   downloadZip(args.dataContext.uploadFiles, 'uploadfiles');
-        // }
-        if (args.dataContext.uploadFiles.length > 1) {
-          setFiles(args.dataContext.uploadFiles);
-          setMergeFileName('uploadfiles');
-          handleShow();
-        }
-        else {
-          let fileInfo: any = args.dataContext.uploadFiles[0];
-          window.open(fileInfo.SourceFilePath,'_blank');
+        else{
           
+          let content = '';
+          if(value)
+          value.forEach((file:any) => {
+              let fileicon = getFileIcon(file.FileExtension);
+              content += `<i class="fa ${fileicon} fa-2 pointer" aria-hidden="true" title="${file.FileName}" data-id="${file.Id}"></i>&nbsp;`;
+          });
+
+          return content;
+        }
+          
+      },
+      onCellClick: (e: any, args: OnEventArgs) => {
+        let fileid = e.target.attributes['data-id'];
+        if(fileid.value){
+          let fileinfo = args.dataContext.uploadFiles.find((item:any) => item.Id == fileid.value);
+          downloadFile(fileinfo);
         }
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
-    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 60 },
+    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 100 },
     {
       id: 'notification',
       field: 'unReadMessages',
@@ -150,25 +147,6 @@ const ClientJobList = () => {
         getNotifications(args.dataContext.id);
       },
     },
-    // {
-    //   id: 'delete',
-    //   field: 'statusName',
-    //   toolTip: 'Delete',
-    //   excludeFromColumnPicker: true,
-    //   excludeFromGridMenu: true,
-    //   excludeFromHeaderMenu: true,
-    //   formatter: (row, cell, value, colDef, dataContext) => {
-    //      return value == "Pending" ? '<i class="fa fa-trash pointer"></i>' : '';
-    //   },
-    //   //params: { iconCssClass: 'fa fa-trash pointer' },
-    //   minWidth: 30,
-    //   maxWidth: 30,
-    //   cssClass: 'text-danger',
-    //   onCellClick: (_e: any, args: OnEventArgs) => {
-    //     if(confirm('Do you want to delete this record?'))
-    //       deleteJob(args.dataContext.id);
-    //   },
-    // }
     {
       id: 'action',
       name: '',
@@ -279,23 +257,24 @@ const ClientJobList = () => {
       }});
     
   }
-    
-    
-  
 
   const onStatusChange = (newValue: any, actionMeta: any) => {
     let selStatus = newValue ? newValue.map((val: any, index: number) => val.value).join(',') : '';
     setStatusFilter(selStatus);
   };
 
-  
-
   function downloadFile(fileInfo: any){
-    saveAs(fileInfo.SourceFilePath, fileInfo.FileName);
+    setLoader(true);
+    DownloadZipService.downlodFile(fileInfo, function(){
+      setLoader(false);
+    });
   };
 
   function downloadZip(mergeFileList: any [], mergeFileName: string){
-      DownloadZipService.createZip(mergeFileList, mergeFileName, function() {});
+      setLoader(true);
+      DownloadZipService.createZip(mergeFileList, mergeFileName, function() {
+        setLoader(false);
+      });
   }
 
   function downloadZipPopUp(){

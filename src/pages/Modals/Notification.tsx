@@ -89,6 +89,7 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
   }
 
   function closeModal(){
+    setNotificationData([]);
     notificationClose();
     props.reloadGridData();
   }

@@ -39,6 +39,15 @@ function getFile1(url: string) {
 
 }
 
+async function downlodFile(fileInfo: any, callback: Function){
+    fetch(fileInfo.SourceFilePath)
+    .then((res:any) => res.blob())
+    .then((blob:any) => {
+      callback();
+      saveAs(blob, fileInfo.FileName);
+    });
+}
+
 async function createZip(files: any[], zipName: string, callback: Function) {
     const name = zipName + '.zip';
     var zip = new JSZip();
@@ -105,7 +114,8 @@ function getContentType(url: string): string {
 
 const DownloadZipService = {
     getFile,
-    createZip
+    createZip,
+    downlodFile
 }
 
 export default DownloadZipService;

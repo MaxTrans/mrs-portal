@@ -95,7 +95,7 @@ const JobsList = () => {
       id: 'files', name: 'Job Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? `<a  target="_blank" href="#">${dataContext.name}</a>` : '';
+          return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#">${dataContext.name}.zip</a>` : '';
         else{
           let icon =  getFileIcon(value[0].FileExtension);
           return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
@@ -106,12 +106,13 @@ const JobsList = () => {
         if (args.dataContext.isSingleJob) {
           setFiles(args.dataContext.files);
           setMergeFileName(args.dataContext.name)
-          handleShow();
+          //handleShow();
+          downloadZip();
         }
         else {
           let fileInfo: any = args.dataContext.files[0];
-          window.open(fileInfo.SourceFilePath,'_blank');
-          
+          //window.open(fileInfo.SourceFilePath,'_blank');
+          downloadFile(fileInfo);
         }
       }
     },
@@ -125,9 +126,9 @@ const JobsList = () => {
       cssClass: 'text-left px-4'
     },
     { id: 'AssignTo', name: 'Assign To', field: 'AssignTo', sortable: true, maxWidth: 100 },
-    { id: 'l1User', name: 'L1 User', field: 'l1User', sortable: true, maxWidth: 100 },
-    { id: 'l2User', name: 'L2 User', field: 'l2User', sortable: true, maxWidth: 100 },
-    { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true, maxWidth: 100 },
+    // { id: 'l1User', name: 'L1 User', field: 'l1User', sortable: true, maxWidth: 100 },
+    // { id: 'l2User', name: 'L2 User', field: 'l2User', sortable: true, maxWidth: 100 },
+    // { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true, maxWidth: 100 },
     
     { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
     {
@@ -153,8 +154,8 @@ const JobsList = () => {
         }
         else {
           let fileInfo: any = args.dataContext.uploadFiles[0];
-          window.open(fileInfo.SourceFilePath,'_blank');
-          
+          //window.open(fileInfo.SourceFilePath,'_blank');
+          downloadFile(fileInfo);
         }
       }
     },
@@ -212,7 +213,36 @@ const JobsList = () => {
             iconCssClass: 'fa fa-upload text-success',
             positionOrder: 66,
             itemVisibilityOverride(args) {
-              return (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.doc' || x == '.docx') > -1
+              let isShow = (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.doc' || x == '.docx') > -1
+              if(args.dataContext.uploadFiles.length == 0)
+                return isShow
+              else
+              {
+                let fileexits = args.dataContext.uploadFiles.find((file:any) => file.FileExtension == '.doc' || file.FileExtension == '.docx');
+                return isShow && !fileexits;
+              }
+            },
+            action: (_e, args) => {
+                setJobId(args.dataContext.id);
+                setFileType('.docx');
+                handleUploadShow();
+            },
+          },
+          {
+            command: 'upload',
+            title: 'Reupload Word File',
+            iconCssClass: 'fa fa-upload text-success',
+            positionOrder: 66,
+            itemVisibilityOverride(args) {
+              let isShow = (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.doc' || x == '.docx') > -1
+              if(args.dataContext.uploadFiles.length > 0)
+              {
+                let fileexits = args.dataContext.uploadFiles.find((file:any) => file.FileExtension == '.doc' || file.FileExtension == '.docx');
+                return isShow && fileexits;
+              }
+              else 
+                return false;
+
             },
             action: (_e, args) => {
                 setJobId(args.dataContext.id);
@@ -226,7 +256,35 @@ const JobsList = () => {
             iconCssClass: 'fa fa-upload text-success',
             positionOrder: 66,
             itemVisibilityOverride(args) {
-              return (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdf') > -1
+              let isShow = (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdf') > -1;
+              if(args.dataContext.uploadFiles.length == 0)
+                return isShow
+              else
+              {
+                let fileexits = args.dataContext.uploadFiles.find((file:any) => file.FileExtension == '.pdf');
+                return isShow && !fileexits;
+              }
+            },
+            action: (_e, args) => {
+              setJobId(args.dataContext.id);
+                setFileType('.pdf');
+                handleUploadShow();
+            },
+          },
+          {
+            command: 'upload',
+            title: 'Reupload PDF File',
+            iconCssClass: 'fa fa-upload text-success',
+            positionOrder: 66,
+            itemVisibilityOverride(args) {
+              let isShow = (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdf') > -1;
+              if(args.dataContext.uploadFiles.length > 0)
+              {
+                let fileexits = args.dataContext.uploadFiles.find((file:any) => file.FileExtension == '.pdf');
+                return isShow && fileexits;
+              }
+              else 
+                return false;
             },
             action: (_e, args) => {
               setJobId(args.dataContext.id);
@@ -240,7 +298,35 @@ const JobsList = () => {
             iconCssClass: 'fa fa-upload text-success',
             positionOrder: 66,
             itemVisibilityOverride(args) {
-              return (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdflnk') > -1
+              let isShow = (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdflnk') > -1;
+              if(args.dataContext.uploadFiles.length == 0)
+                return isShow
+              else
+              {
+                let fileexits = args.dataContext.uploadFiles.find((file:any) => file.FileExtension == '.pdflnk');
+                return isShow && !fileexits;
+              }
+            },
+            action: (_e, args) => {
+              setJobId(args.dataContext.id);
+              setFileType('.pdflnk');
+              handleUploadShow();
+            },
+          },
+          {
+            command: 'upload',
+            title: 'Reupload PDF Link File',
+            iconCssClass: 'fa fa-upload text-success',
+            positionOrder: 66,
+            itemVisibilityOverride(args) {
+              let isShow = (args.dataContext.filePreference as string).split(',').findIndex((x) => x == '.pdflnk') > -1;
+              if(args.dataContext.uploadFiles.length > 0)
+              {
+                let fileexits = args.dataContext.uploadFiles.find((file:any) => file.FileExtension == '.pdflnk');
+                return isShow && fileexits;
+              }
+              else 
+                return false;
             },
             action: (_e, args) => {
               setJobId(args.dataContext.id);
@@ -380,11 +466,17 @@ const JobsList = () => {
   };
 
   function downloadFile(fileInfo: any){
-    saveAs(fileInfo.SourceFilePath, fileInfo.FileName);
+    setLoader(true);
+    DownloadZipService.downlodFile(fileInfo, function() {
+      setLoader(false);
+    });
   };
 
   function downloadZip(){
-      DownloadZipService.createZip(fileList, mergeFileName, function() {});
+    setLoader(true);
+      DownloadZipService.createZip(fileList, mergeFileName, function() {
+        setLoader(false);
+      });
   }
 
   const defaultStatus = [
