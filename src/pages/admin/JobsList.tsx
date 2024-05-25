@@ -156,6 +156,7 @@ const JobsList = () => {
           window.open(fileInfo.SourceFilePath,'_blank');
           
         }
+        updateJobStatus(args.dataContext.id,'In Progress');
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName', maxWidth: 100 },
@@ -385,6 +386,17 @@ const JobsList = () => {
 
   function downloadZip(){
       DownloadZipService.createZip(fileList, mergeFileName, function() {});
+  }
+
+  const updateJobStatus = (jobId:string, status: string) => {
+    JobService.updateJobStatus(jobId, user.id, status).then((response: any) => {
+      if (response.isSuccess) {
+        //toast.success(`Job ${status} successfully.`);
+        reloadGridData();
+      }
+    }).finally(() => {
+      
+    });
   }
 
   const defaultStatus = [

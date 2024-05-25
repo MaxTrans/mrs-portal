@@ -76,7 +76,7 @@ const ClientJobList = () => {
           window.open(fileInfo.SourceFilePath,'_blank');
           
         }
-        updateJobStatus(args.dataContext.id,'In Progress');
+       
       }
     },
     {
@@ -124,6 +124,7 @@ const ClientJobList = () => {
           window.open(fileInfo.SourceFilePath,'_blank');
           
         }
+        updateJobStatus(args.dataContext.id,'In Progress');
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
