@@ -1,8 +1,8 @@
 import ApiService from '@app/services/Api.service';
 
-export const getJobs = (userId:string, JobStatus: string, createdBy: string, filename: string | null = null, fromDate: string | null = null, toDate: string | null = null) => {
+export const getJobs = (userId:string, JobStatus: string, createdBy: string, filename: string | null = null, fromDate: string | null = null, toDate: string | null = null, initialLoad: boolean | false = false) => {
     return new Promise(async (res, rej) => {
-      ApiService.requests.get(`Job/getjobs?userId=${userId}&jobStatus=${JobStatus}&${createdBy != null ? 'createdBy=' + createdBy : ''}&${filename != null ? 'filename=' + filename : ''}&${fromDate != null ? 'fromDate=' + fromDate : ''}&${toDate != null ? 'toDate=' + toDate : ''}`)
+      ApiService.requests.get(`Job/getjobs?userId=${userId}&jobStatus=${JobStatus}&${createdBy != null ? 'createdBy=' + createdBy : ''}&${filename != null ? 'filename=' + filename : ''}&${fromDate != null ? 'fromDate=' + fromDate : ''}&${toDate != null ? 'toDate=' + toDate : ''}&initialLoad=${initialLoad}`)
       .then((response) => {
         if(response.isSuccess)
         {

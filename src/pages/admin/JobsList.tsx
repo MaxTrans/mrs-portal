@@ -48,11 +48,12 @@ const JobsList = () => {
   const [mergeFileName, setMergeFileName] = useState('');
   const [showloader, setLoader] = useState(true);
   const [uploadTypes, setUploadTypes] = useState([]);
-  const [selectedStatus, setStatusFilter] = useState('FAB98251-70C2-410B-BC09-9B66F9234E30,4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6');
+  const [selectedStatus, setStatusFilter] = useState('');
   const [selectedClient, setClientFilter] = useState('');
   const [filename, setFilename] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const MenuCommandItems: MenuCommandItem[] = Array<MenuCommandItem>();
   // Files Modal 
@@ -114,6 +115,7 @@ const JobsList = () => {
           //window.open(fileInfo.SourceFilePath,'_blank');
           downloadFile(fileInfo);
         }
+        updateJobStatus(args.dataContext.id,'In Progress');
       }
     },
     // { id: 'name', name: 'Name', field: 'name', sortable: true },
@@ -407,7 +409,7 @@ const JobsList = () => {
 
   const loadData = (isreload:boolean) => {
     setLoader(true);
-    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate).then((response: any) => {
+    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate, initialLoad).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
           item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
@@ -427,6 +429,8 @@ const JobsList = () => {
     }).finally(() => {
       setLoader(false);
     });
+
+    setInitialLoad(false);
   }
 
   let getUsers = async () => {
@@ -491,10 +495,10 @@ const JobsList = () => {
     });
   }
 
-  const defaultStatus = [
-    {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
-    {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
-  ];
+  // const defaultStatus = [
+  //   {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
+  //   {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
+  // ];
   
 
   useEffect(() => {
@@ -554,7 +558,7 @@ const JobsList = () => {
                 <div className="col-md-3">
                   <div className="form-group">
                       <label>Select Status </label>
-                      <Select defaultValue={defaultStatus} options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
+                      <Select options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
                   </div>
                 </div>  
 

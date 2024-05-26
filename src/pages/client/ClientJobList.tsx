@@ -33,6 +33,7 @@ const ClientJobList = () => {
   const [filename, setFilename] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [initialLoad, setInitialLoad] = useState(true);
 //  const [mergeFileName, setMergeFileName] = useState('');
   // const [defaultStatus, setDefaultStatus] = useState([]);
   // Files Modal 
@@ -45,10 +46,10 @@ const ClientJobList = () => {
 
   let selectedClient: string = user.id;
 
-  const defaultStatus = [
-    {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
-    {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
-  ];
+  // const defaultStatus = [
+  //   {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
+  //   {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
+  // ];
 
   const columns: Column[] = [
     { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth:80 },
@@ -121,7 +122,7 @@ const ClientJobList = () => {
           let fileinfo = args.dataContext.uploadFiles.find((item:any) => item.Id == fileid.value);
           downloadFile(fileinfo);
         }
-        updateJobStatus(args.dataContext.id,'In Progress');
+        updateJobStatus(args.dataContext.id,'Downloaded');
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
@@ -207,7 +208,7 @@ const ClientJobList = () => {
 
   const loadData = (isreload:boolean) => {
     setLoader(true);
-    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate).then((response: any) => {
+    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate, initialLoad).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
           item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
@@ -224,6 +225,8 @@ const ClientJobList = () => {
     }).finally(() => {
       setLoader(false);
     });
+
+    setInitialLoad(false);
   }
 
   const deleteJob = (jobId:string, status: string) => {
@@ -267,7 +270,7 @@ const ClientJobList = () => {
               return { 'value': item.id, 'label': item.value } 
           });
           dStatus = dStatus.filter((element: any) => !!element);
-          setStatusFilter(status);
+          //setStatusFilter(status);
         
       }});
     
@@ -382,7 +385,7 @@ const ClientJobList = () => {
                 <div className="col-md-3">
                   <div className="form-group">
                       <label>Select Status </label>
-                      <Select defaultValue={defaultStatus} options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
+                      <Select options={statusList} isClearable={true} onChange={onStatusChange} isMulti={true}  closeMenuOnSelect={false}/>
                   </div>
                 </div>  
 
