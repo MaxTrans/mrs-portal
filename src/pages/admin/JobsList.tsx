@@ -19,6 +19,7 @@ import DownloadZipService from '@app/services/downloadZipService';
 
 import ApiService from '@app/services/Api.service';
 import { AxiosResponse } from 'axios';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 interface Props { }
 
@@ -90,16 +91,17 @@ const JobsList = () => {
     
   }
   const columns: Column[] = [
-    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth:80 },
-    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso, maxWidth: 100 },
+    { id: 'jobId', name: 'Id', field: 'jobId', sortable: true, maxWidth:80 },
+    { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
+    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateUs, maxWidth: 100 },
     {
-      id: 'files', name: 'Job Name', field: 'files', sortable: true,
+      id: 'files', name: 'File Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#">${dataContext.name}.zip</a>` : '';
+          return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#" title="${dataContext.name}">${dataContext.name}.zip</a>` : '';
         else{
           let icon =  getFileIcon(value[0].FileExtension);
-          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
+          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer" title="${value[0].FileName}">${value[0].FileName}</a>` : '';
         }
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
@@ -132,9 +134,9 @@ const JobsList = () => {
     // { id: 'l2User', name: 'L2 User', field: 'l2User', sortable: true, maxWidth: 100 },
     // { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true, maxWidth: 100 },
     
-    { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
+    
     {
-      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true, minWidth:100,
+      id: 'uploadFiles', name: 'Files', field: 'uploadFiles', sortable: true, minWidth:100,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
@@ -163,7 +165,7 @@ const JobsList = () => {
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName', maxWidth: 100 },
-    { id: 'pagecount', name: 'No. of Pages', field: 'files', sortable: true, maxWidth: 100,
+    { id: 'pagecount', name: '#Pages', field: 'files', sortable: true, maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
         let pageCount = 0;
         value.forEach((item:any) => {
@@ -343,7 +345,7 @@ const JobsList = () => {
             iconCssClass: 'fa fa-clone text-info',
             positionOrder: 66,
             itemVisibilityOverride(args) {
-              return (args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'In Progress');
+              return false; //(args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'In Progress');
             },
             action: (_e, args) => {
               console.log(args.dataContext, args.column);
@@ -354,7 +356,7 @@ const JobsList = () => {
             command: 'merge', title: 'Merge Job', positionOrder: 64,
             iconCssClass: 'fa fa-compress text-info', cssClass: 'red', textCssClass: 'text-italic color-danger-light',
             itemVisibilityOverride(args) {
-              return (args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'In Progress');
+              return false; //(args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'In Progress');
             },
             action: (_e, args) => {
               console.log(args.dataContext, args.column);
@@ -389,8 +391,6 @@ const JobsList = () => {
   }
 
   const getFileIcon = (fileExt:string) => {
-    //['pdf','.pdf','pdflink',''].indexOf(value[0].FileExtension) > -1 ?  '<i class="fa fa-file-pdf-o text-danger" aria-hidden="true"></i>' : '<i class="fa fa-file-word-o text-primary" aria-hidden="true"></i>';
-
     switch(fileExt){
       case 'pdf':
       case '.pdf':
@@ -429,8 +429,6 @@ const JobsList = () => {
     }).finally(() => {
       setLoader(false);
     });
-
-    setInitialLoad(false);
   }
 
   let getUsers = async () => {
@@ -450,12 +448,7 @@ const JobsList = () => {
     let status = response.data.map((item: any) => {
       return { 'value': item.id, 'label': item.value };
     });
-
       setStatus(status)
-      // set default status on load
-      // let defaultFilters: any[] = ['Pending','In Progress'];
-      // let defaultStatus = status.filter((item:any) => defaultFilters.indexOf(item.label) > -1).map((item:any) => item.value).join(',');
-      // setStatusFilter(defaultStatus);
       console.log(response.data);
     }
   }
@@ -495,11 +488,17 @@ const JobsList = () => {
     });
   }
 
-  // const defaultStatus = [
-  //   {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
-  //   {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
-  // ];
-  
+  function search()
+  {
+    if(initialLoad)
+      setInitialLoad(false);
+    else
+      loadData(false);  
+  }
+
+  useEffect(() => {
+    loadData(false);
+  }, [initialLoad]);
 
   useEffect(() => {
     getUsers();
@@ -571,7 +570,7 @@ const JobsList = () => {
 
                 <div className="col-md-2">
                   <div className="form-group">
-                      <label>Filename </label>
+                      <label>File Name </label>
                       <input  className="form-control" type='text' name='txtFilename' onChange={(e) => setFilename(e.target.value)} value={filename} />
                   </div>
                 </div>  
@@ -593,7 +592,7 @@ const JobsList = () => {
                 <div className="col-md-1">
                   <div className="form-group">
                       <label>&nbsp; </label><br></br>
-                      <Button variant="primary" onClick={(e) => loadData(false)}>Search</Button>
+                      <Button variant="primary" onClick={(e) => search()}>Search</Button>
                   </div>
                 </div>  
                 </div>

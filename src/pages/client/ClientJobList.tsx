@@ -17,6 +17,7 @@ import { saveAs } from 'file-saver';
 import { useNavigate } from "react-router-dom";
 import { blob } from 'stream/consumers';
 import { faL } from '@fortawesome/free-solid-svg-icons';
+import confirm from '@app/components/confirm/confirmService';
 
 //let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
@@ -43,27 +44,21 @@ const ClientJobList = () => {
 
   const user = useSelector((state: IUser) => store.getState().auth);
   const navigate = useNavigate();
-
   let selectedClient: string = user.id;
 
-  // const defaultStatus = [
-  //   {value:'FAB98251-70C2-410B-BC09-9B66F9234E30', label: 'Pending'},
-  //   {value:'4A6B36E0-FA7C-4F8D-8FE3-4E10A57D07B6', label: 'In Progress'}
-  // ];
-
   const columns: Column[] = [
-    { id: 'jobId', name: 'Job Id', field: 'jobId', sortable: true, maxWidth:80 },
+    { id: 'jobId', name: 'Id', field: 'jobId', sortable: true, maxWidth:80 },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
-    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateIso,maxWidth: 100 },
+    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateUs, maxWidth: 100 },
     
     {
-      id: 'files', name: 'Job Name', field: 'files', sortable: true,
+      id: 'files', name: 'File Name', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
-          return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a href="#" class="pointer">${dataContext.name}.zip</a>` : '';
+          return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a href="#" class="pointer" title="${dataContext.name}">${dataContext.name}.zip</a>` : '';
         else{
           let icon =  getFileIcon(value[0].FileExtension);
-          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
+          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer" title="${value[0].FileName}">${value[0].FileName}</a>` : '';
         }
       },
       onCellClick: (e: Event, args: OnEventArgs) => {
@@ -89,7 +84,7 @@ const ClientJobList = () => {
       },
       cssClass: 'text-left px-4'
     },
-    { id: 'pagecount', name: 'No. of Pages', field: 'files', sortable: true, maxWidth: 120,
+    { id: 'pagecount', name: '#Pages', field: 'files', sortable: true, maxWidth: 120,
       formatter: (row, cell, value, colDef, dataContext) => {
         let pageCount = 0;
         value.forEach((item:any) => {
@@ -99,7 +94,7 @@ const ClientJobList = () => {
       }
     },
     {
-      id: 'uploadFiles', name: 'Upload Files', field: 'uploadFiles', sortable: true, maxWidth: 100,
+      id: 'uploadFiles', name: 'Files', field: 'uploadFiles', sortable: true, maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
@@ -122,7 +117,7 @@ const ClientJobList = () => {
           let fileinfo = args.dataContext.uploadFiles.find((item:any) => item.Id == fileid.value);
           downloadFile(fileinfo);
         }
-        updateJobStatus(args.dataContext.id,'Downloaded');
+        //updateJobStatus(args.dataContext.id,'Downloaded');
       }
     },
     { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
@@ -158,7 +153,7 @@ const ClientJobList = () => {
       field: 'statusName',
       maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
-        if(value == 'Pending' || value == 'In Progress')
+        if(value == 'Pending')
           return `<div class="btn btn-default btn-xs">Action <i class="fa fa-caret-down"></i></div>`;
         else
         return '';
@@ -176,7 +171,10 @@ const ClientJobList = () => {
             //   return (args.dataContext.statusName == 'Pending' || args.dataContext.statusName == 'InProgress' )
             // },
             action: (_e, args) => {
-                  deleteJob(args.dataContext.id,'Void');
+              confirm('Are you sure you want to Void this record?', { title: 'Confirm', cancelLabel: 'No', okLabel: 'Yes' }).then((res:boolean) => {
+                if(res)
+                  deleteJob(args.dataContext.id,'Void'); 
+              });
             },
           },
           {
@@ -185,7 +183,10 @@ const ClientJobList = () => {
             iconCssClass: 'fa fa-files-o text-info',
             positionOrder: 66,
             action: (_e, args) => {
-                  deleteJob(args.dataContext.id,'Duplicate');
+              confirm('Are you sure you want to Duplicate this record?', { title: 'Confirm', cancelLabel: 'No', okLabel: 'Yes' }).then((res:boolean) => {
+                if(res)
+                deleteJob(args.dataContext.id,'Duplicate');
+              });
             },
           },
         ]
@@ -201,6 +202,7 @@ const ClientJobList = () => {
       datasetIdPropertyName: 'uid',
     }
   };
+
 
   function reactGridReady(reactGridInstance: SlickgridReactInstance) {
     setGrid(reactGridInstance);
@@ -225,8 +227,6 @@ const ClientJobList = () => {
     }).finally(() => {
       setLoader(false);
     });
-
-    setInitialLoad(false);
   }
 
   const deleteJob = (jobId:string, status: string) => {
@@ -317,13 +317,26 @@ const ClientJobList = () => {
 
   };
 
-  useEffect(() => {
-    getStatus();
-  }, []);
+  function search()
+  {
+    if(initialLoad)
+      setInitialLoad(false);
+    else
+      loadData(false);  
+  }
 
   useEffect(() => {
     loadData(false);
-  }, [selectedStatus]);
+  }, [initialLoad]);
+
+  useEffect(() => {
+    getStatus();
+    loadData(false);
+  }, []);
+
+  // useEffect(() => {
+    
+  // }, [selectedStatus]);
 
   const FileBody = () => {
     let files = fileList.map((item: any) => <tr key={item.FileName}><td><i className={"fa " + getFileIcon(item.FileExtension)} aria-hidden="true"></i> {item.FileName}</td><td width={30} className='text-center'> <a href={item.SourceFilePath} target='_blank'> <i className="fa fa-download" aria-hidden="true"></i></a></td></tr>);
@@ -391,7 +404,7 @@ const ClientJobList = () => {
 
                 <div className="col-md-3">
                   <div className="form-group">
-                      <label>Filename </label>
+                      <label>File Name </label>
                       <input className="form-control" type='text' name='txtFilename' onChange={(e) => setFilename(e.target.value)} value={filename} />
                   </div>
                 </div>  
@@ -412,7 +425,7 @@ const ClientJobList = () => {
                 <div className="col-md-2">
                   <div className="form-group">
                       <label>&nbsp; </label><br></br>
-                     <Button variant="primary" onClick={(e) => loadData(false)}>Search</Button>
+                     <Button variant="primary" onClick={(e) => search()}>Search</Button>
                   </div>
                 </div>  
                  
