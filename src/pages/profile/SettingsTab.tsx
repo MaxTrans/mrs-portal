@@ -25,7 +25,7 @@ const initialValues: IUserPreferences = {
     IsDocAllowed: undefined
 }
 
-const SettingsTab = ({ isActive }: { isActive: boolean }) => {
+const SettingsTab = ({ isActive, userId }: { isActive: boolean, userId: string }) => {
   const user = useSelector((state: IUser) => store.getState().auth);
   const [ pdfAllowed, setPdfAllowed ] = useState(false);
   const [ docAllowed, setDocAllowed ] = useState(false);
@@ -38,7 +38,7 @@ const SettingsTab = ({ isActive }: { isActive: boolean }) => {
 
   const handleSubmit = async (values: IUserPreferences) => {
    
-    values.userId = user.id;
+    values.userId = userId;
   
     ApiService.requests.post('User/SavePreferences', values)
             .then((response) => {
