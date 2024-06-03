@@ -153,12 +153,17 @@ const ClientJobList = () => {
       field: 'statusName',
       maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
+        
+       
         if(value == 'Pending')
-          return `<div class="btn btn-default btn-xs">Action <i class="fa fa-caret-down"></i></div>`;
+          return `<div class="btn btn-default btn-xs" >Action <i class="fa fa-caret-down"></i></div>`;  
         else
-        return '';
+          return '';
       },
       cellMenu: {
+        menuUsabilityOverride: function (args) {
+          return (args.dataContext.statusName === 'Pending'); 
+        },
         //commandTitle: 'Commands',
         // width: 200,
         commandItems: [

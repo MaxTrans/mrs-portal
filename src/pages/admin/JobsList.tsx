@@ -91,6 +91,18 @@ const JobsList = () => {
     
   }
   const columns: Column[] = [
+    { id: 'select', name: '', field: 'select', sortable: true, maxWidth: 50,
+    formatter: (row, cell, value, colDef, dataContext) => {
+      if(dataContext.statusName == 'Pending' || dataContext.statusName == 'In Progress')
+        return '<input type="checkbox">'
+      else
+        return '';
+    },
+    onCellClick: (e: any, args: OnEventArgs) => {
+      if(e.target && e.target.type == 'checkbox')
+        args.dataContext.selected = e.target.checked;
+    }
+     },
     { id: 'jobId', name: 'Id', field: 'jobId', sortable: true, maxWidth:80 },
     { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
     { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateUs, maxWidth: 100 },
@@ -372,6 +384,22 @@ const JobsList = () => {
   const gridOptions: GridOption = {
     ...ConfigSettings.gridOptions,
     ...{
+      enableCellNavigation: true,
+      enableExcelCopyBuffer:false,
+      enableFiltering: true,
+      enableRowSelection: true,
+      enableCheckboxSelector: true,
+      checkboxSelector: {
+        // you can toggle these 2 properties to show the "select all" checkbox in different location
+        hideInFilterHeaderRow: false,
+        hideInColumnTitleRow: false,
+        columnIndexPosition: 1,
+        onExtensionRegistered: (instance) => {  }
+      },
+      rowSelectionOptions: {
+        // True (Single Selection), False (Multiple Selections)
+        selectActiveRow: false
+      },
       datasetIdPropertyName: 'uid',
       enableCellMenu: true,
       cellMenu: {
@@ -382,7 +410,8 @@ const JobsList = () => {
             dataContext.completed = args.item.option;
           }
         },
-      }
+      },
+      
     }
   };
 
@@ -429,6 +458,28 @@ const JobsList = () => {
     }).finally(() => {
       setLoader(false);
     });
+  }
+
+  const mergeJobs = () => {
+      let rows = reactGrid?.dataView.getItems().filter((item:any) => item.selected) || [];
+      if(rows && rows.length <= 1) {
+        toast.info(`Select atleast two jobs.`);
+        return false;
+      }
+
+      setLoader(true);
+      let userid = rows[0].createdBy;
+      let selectedIds = rows.map((sel:any) => sel.id) || [];
+      JobService.mergeJobs(selectedIds, userid, user.companyId).then((response: any) => {
+        if (response.isSuccess) {
+          toast.success(`Jobs Merged successfully.`);
+          search();
+        }
+      }).catch(() => {
+        setLoader(false);
+      }).finally(() => {
+        setLoader(false);
+      });
   }
 
   let getUsers = async () => {
@@ -548,8 +599,15 @@ const JobsList = () => {
         <section className="content">
           <div className="container-fluid">
             <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">Jobs</h3>
+            <div className="card-header d-flex">
+                <div className='col-md-4'>
+                  <h3 className="card-title">Jobs</h3>
+                </div>
+                <div className='col-md-8 d-flex flex-row-reverse'>
+                  {/* <Button className='btn-sm btn-success'>
+                    Merge Selected Jobs
+                  </Button> */}
+                </div>
               </div>
               <div className="card-body">
                 <div className='row'>
@@ -596,7 +654,14 @@ const JobsList = () => {
                   </div>
                 </div>  
                 </div>
+               <div className='row'>
+                <div className='col-md-12'>
+                <Button className='btn-sm btn-success' onClick={mergeJobs}>
+                    Merge Selected Jobs
+                  </Button>
+                </div>
                
+               </div>
                 <div className='row pt-4'>
                   <div className='col-md-12' style={{ zIndex: '0' }}>
                     <SlickgridReact gridId="grid1"
