@@ -48,10 +48,27 @@ export const getJobs = (userId:string, JobStatus: string, createdBy: string, fil
     });
   };
 
+  export const mergeJobs = (jobIds:any[], userId:string, companyId:string) => {
+    return new Promise(async (res, rej) => {
+      ApiService.requests.post(`Job/mergejobs`, { jobIds: jobIds, createdBy: userId, companyId: companyId })
+      .then((response) => {
+        if(response.isSuccess)
+        {
+          return res(response);
+        }
+        else
+        {
+          return rej({ message: response.message });
+        }
+      })
+    });
+  };
+
   const JobService = {
     getJobs,
     deleteJob,
-    updateJobStatus
+    updateJobStatus,
+    mergeJobs
 }
 
 export default JobService;

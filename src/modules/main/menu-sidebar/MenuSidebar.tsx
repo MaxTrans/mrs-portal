@@ -157,7 +157,7 @@ const MenuSidebar = () => {
           height={40}
           
         />
-        <span className="brand-text font-weight-light pl-3">Max Trans</span>
+        <span className="brand-text font-weight-light pl-3"></span>
       </Link>
       <div className="sidebar">
         <nav className="mt-2" style={{ overflowY: 'hidden' }}>

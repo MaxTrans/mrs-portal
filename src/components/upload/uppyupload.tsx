@@ -53,7 +53,7 @@ export default function UppyUpload(props: any) {
         showProgressDetails: true,
         proudlyDisplayPoweredByUppy: false,
         height: 300,
-        width: "100%",
+        width: "100%"
       })
       .use(DropTarget, {
         target: document.body,
@@ -88,8 +88,9 @@ export default function UppyUpload(props: any) {
       })
       .setOptions({
         restrictions: {
-          allowedFileTypes: props.filePreference ? props.filePreference === '.pdflnk' ? ['.pdf'] : props.filePreference.split(',')  : ['.pdf','.doc','.docx'],
-          maxNumberOfFiles: (props.admin && props.admin === true ? 1 : 10)
+          allowedFileTypes: props.filePreference ? props.filePreference === '.pdflnk' ? ['.pdf'] : props.filePreference.split(',')  : ['.pdf','.doc','.docx','.*'],
+          maxNumberOfFiles: (props.admin && props.admin === true ? 1 : 10),
+          maxFileSize: 1073741824
         },
       }));
   }, []);

@@ -55,6 +55,7 @@ const JobsList = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [initialLoad, setInitialLoad] = useState(true);
+  const [showNotification, setShowNotification] = useState();
 
   const MenuCommandItems: MenuCommandItem[] = Array<MenuCommandItem>();
   // Files Modal 
@@ -91,11 +92,23 @@ const JobsList = () => {
     
   }
   const columns: Column[] = [
-    { id: 'jobId', name: 'Id', field: 'jobId', sortable: true, maxWidth:80 },
-    { id: 'userName', name: 'Client', field: 'userName', maxWidth: 100 },
-    { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateUs, maxWidth: 100 },
+    { id: 'select', name: '', field: 'select', sortable: true, maxWidth: 50,
+    formatter: (row, cell, value, colDef, dataContext) => {
+      if(dataContext.statusName == 'Pending' || dataContext.statusName == 'In Progress')
+        return '<input type="checkbox">'
+      else
+        return '';
+    },
+    onCellClick: (e: any, args: OnEventArgs) => {
+      if(e.target && e.target.type == 'checkbox')
+        args.dataContext.selected = e.target.checked;
+    }
+     },
+    { id: 'jobId', name: 'ID', field: 'jobId', sortable: true, maxWidth:80 },
+    { id: 'userName', name: 'CLIENT', field: 'userName', maxWidth: 100 },
+    { id: 'createdDateTime', name: 'DATE', field: 'createdDateTime', sortable: true, formatter: Formatters.dateUs, maxWidth: 100 },
     {
-      id: 'files', name: 'File Name', field: 'files', sortable: true,
+      id: 'files', name: 'FILE NAME <i class="fa fa-download text-success ml-1" aria-hidden="true"></i>', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
           return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a  target="_blank" href="#" title="${dataContext.name}">${dataContext.name}.zip</a>` : '';
@@ -123,20 +136,20 @@ const JobsList = () => {
     // { id: 'name', name: 'Name', field: 'name', sortable: true },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
     {
-      id: 'isSingleJob', name: 'Job Type  ', field: 'isSingleJob', sortable: true, maxWidth: 120,
+      id: 'isSingleJob', name: 'JOB TYPE  ', field: 'isSingleJob', sortable: true, maxWidth: 120,
       formatter: (row, cell, value, colDef, dataContext) => {
         return value ? `<div title='Merge Upload'>M(${dataContext.files.length})</div>` : `<div title='Single Upload'>S(${dataContext.files.length})</div>`;
       },
       cssClass: 'text-left px-4'
     },
-    { id: 'AssignTo', name: 'Assign To', field: 'AssignTo', sortable: true, maxWidth: 100 },
+    { id: 'AssignTo', name: 'ASSIGN TO', field: 'AssignTo', sortable: true, maxWidth: 120 },
     // { id: 'l1User', name: 'L1 User', field: 'l1User', sortable: true, maxWidth: 100 },
     // { id: 'l2User', name: 'L2 User', field: 'l2User', sortable: true, maxWidth: 100 },
     // { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true, maxWidth: 100 },
     
     
     {
-      id: 'uploadFiles', name: 'Files', field: 'uploadFiles', sortable: true, minWidth:100,
+      id: 'uploadFiles', name: 'FILES <i class="fa fa-upload text-success ml-1" aria-hidden="true"></i>', field: 'uploadFiles', sortable: true, minWidth:100,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
@@ -164,8 +177,8 @@ const JobsList = () => {
         updateJobStatus(args.dataContext.id,'In Progress');
       }
     },
-    { id: 'statusName', name: 'Status', field: 'statusName', maxWidth: 100 },
-    { id: 'pagecount', name: '#Pages', field: 'files', sortable: true, maxWidth: 100,
+    { id: 'statusName', name: 'STATUS', field: 'statusName', maxWidth: 100 },
+    { id: 'pagecount', name: '#PAGES', field: 'files', sortable: true, maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
         let pageCount = 0;
         value.forEach((item:any) => {
@@ -175,7 +188,15 @@ const JobsList = () => {
       },
       cssClass: 'text-center px-4'
     },
-    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 100 },
+    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 100 
+      ,formatter: (row, cell, value, colDef, dataContext) => {
+        if (typeof value === 'string' && value.endsWith("Hours")) {
+          return value.replace("Hours", "Hrs");
+        } else {
+          return value.toString();
+        }
+      }
+    },
     {
       id: 'notification',
       field: 'unReadMessages',
@@ -197,6 +218,7 @@ const JobsList = () => {
       maxWidth: 40,
       cssClass: 'text-primary',
       onCellClick: (_e: any, args: OnEventArgs) => {
+        setShowNotification(args.dataContext)
         getNotifications(args.dataContext.id);
         // reactGrid.gridService.highlightRow(args.row, 1500);
         // reactGrid.gridService.setSelectedRow(args.row);
@@ -372,6 +394,22 @@ const JobsList = () => {
   const gridOptions: GridOption = {
     ...ConfigSettings.gridOptions,
     ...{
+      enableCellNavigation: true,
+      enableExcelCopyBuffer:false,
+      enableFiltering: true,
+      enableRowSelection: true,
+      enableCheckboxSelector: true,
+      checkboxSelector: {
+        // you can toggle these 2 properties to show the "select all" checkbox in different location
+        hideInFilterHeaderRow: false,
+        hideInColumnTitleRow: false,
+        columnIndexPosition: 1,
+        onExtensionRegistered: (instance) => {  }
+      },
+      rowSelectionOptions: {
+        // True (Single Selection), False (Multiple Selections)
+        selectActiveRow: false
+      },
       datasetIdPropertyName: 'uid',
       enableCellMenu: true,
       cellMenu: {
@@ -382,7 +420,8 @@ const JobsList = () => {
             dataContext.completed = args.item.option;
           }
         },
-      }
+      },
+      
     }
   };
 
@@ -429,6 +468,28 @@ const JobsList = () => {
     }).finally(() => {
       setLoader(false);
     });
+  }
+
+  const mergeJobs = () => {
+      let rows = reactGrid?.dataView.getItems().filter((item:any) => item.selected) || [];
+      if(rows && rows.length <= 1) {
+        toast.info(`Select atleast two jobs.`);
+        return false;
+      }
+
+      setLoader(true);
+      let userid = rows[0].createdBy;
+      let selectedIds = rows.map((sel:any) => sel.id) || [];
+      JobService.mergeJobs(selectedIds, userid, user.companyId).then((response: any) => {
+        if (response.isSuccess) {
+          toast.success(`Jobs Merged successfully.`);
+          search();
+        }
+      }).catch(() => {
+        setLoader(false);
+      }).finally(() => {
+        setLoader(false);
+      });
   }
 
   let getUsers = async () => {
@@ -548,8 +609,15 @@ const JobsList = () => {
         <section className="content">
           <div className="container-fluid">
             <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">Jobs</h3>
+            <div className="card-header d-flex">
+                <div className='col-md-4'>
+                  <h3 className="card-title">Jobs</h3>
+                </div>
+                <div className='col-md-8 d-flex flex-row-reverse'>
+                  {/* <Button className='btn-sm btn-success'>
+                    Merge Selected Jobs
+                  </Button> */}
+                </div>
               </div>
               <div className="card-body">
                 <div className='row'>
@@ -596,7 +664,14 @@ const JobsList = () => {
                   </div>
                 </div>  
                 </div>
+               <div className='row'>
+                <div className='col-md-12'>
+                <Button className='btn-sm btn-success' onClick={mergeJobs}>
+                    Merge Selected Jobs
+                  </Button>
+                </div>
                
+               </div>
                 <div className='row pt-4'>
                   <div className='col-md-12' style={{ zIndex: '0' }}>
                     <SlickgridReact gridId="grid1"
@@ -643,7 +718,7 @@ const JobsList = () => {
         </Modal.Footer>
       </Modal>
 
-      <NorificationModal title='alert' okBottonText='OK' cancelBottonText='Close' ref={childRef} reloadGridData={reloadGridData}></NorificationModal>
+      <NorificationModal title='alert' okBottonText='OK' cancelBottonText='Close' details={showNotification} ref={childRef} reloadGridData={reloadGridData}></NorificationModal>
     </>
 
   );

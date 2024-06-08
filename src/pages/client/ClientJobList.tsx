@@ -35,6 +35,7 @@ const ClientJobList = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [initialLoad, setInitialLoad] = useState(true);
+  const [showNotification, setShowNotification] = useState(false);
 //  const [mergeFileName, setMergeFileName] = useState('');
   // const [defaultStatus, setDefaultStatus] = useState([]);
   // Files Modal 
@@ -47,12 +48,12 @@ const ClientJobList = () => {
   let selectedClient: string = user.id;
 
   const columns: Column[] = [
-    { id: 'jobId', name: 'Id', field: 'jobId', sortable: true, maxWidth:80 },
+    { id: 'jobId', name: 'ID', field: 'jobId', sortable: true, maxWidth:80 },
     // { id: 'notes', name: 'Notes', field: 'notes', sortable: true },
     { id: 'createdDateTime', name: 'Date', field: 'createdDateTime', sortable: true, formatter: Formatters.dateUs, maxWidth: 100 },
     
     {
-      id: 'files', name: 'File Name', field: 'files', sortable: true,
+      id: 'files', name: 'FILE NAME <i class="fa fa-upload text-success ml-1" aria-hidden="true"></i>', field: 'files', sortable: true,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (dataContext.isSingleJob)
           return value.length > 0 ? `<i class="fa fa-file-archive-o text-info" aria-hidden="true"></i> <a href="#" class="pointer" title="${dataContext.name}">${dataContext.name}.zip</a>` : '';
@@ -78,13 +79,13 @@ const ClientJobList = () => {
       }
     },
     {
-      id: 'isSingleJob', name: 'Job Type  ', field: 'isSingleJob', sortable: true, maxWidth: 120,
+      id: 'isSingleJob', name: 'JOB TYPE  ', field: 'isSingleJob', sortable: true, maxWidth: 120,
       formatter: (row, cell, value, colDef, dataContext) => {
         return value ? `<div title='Merge Upload'>M(${dataContext.files.length})</div>` : `<div title='Single Upload'>S(${dataContext.files.length})</div>`;
       },
       cssClass: 'text-left px-4'
     },
-    { id: 'pagecount', name: '#Pages', field: 'files', sortable: true, maxWidth: 120,
+    { id: 'pagecount', name: '#PAGES', field: 'files', sortable: true, maxWidth: 120,
       formatter: (row, cell, value, colDef, dataContext) => {
         let pageCount = 0;
         value.forEach((item:any) => {
@@ -94,7 +95,7 @@ const ClientJobList = () => {
       }
     },
     {
-      id: 'uploadFiles', name: 'Files', field: 'uploadFiles', sortable: true, maxWidth: 100,
+      id: 'uploadFiles', name: 'FILES <i class="fa fa-download text-success ml-1" aria-hidden="true"></i>', field: 'uploadFiles', sortable: true, maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
@@ -120,8 +121,16 @@ const ClientJobList = () => {
         //updateJobStatus(args.dataContext.id,'Downloaded');
       }
     },
-    { id: 'statusName', name: 'Status', field: 'statusName',  maxWidth: 180},
-    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 100 },
+    { id: 'statusName', name: 'STATUS', field: 'statusName',  maxWidth: 180},
+    { id: 'tat', name: 'TAT', field: 'tat', maxWidth: 100
+    ,formatter: (row, cell, value, colDef, dataContext) => {
+      if (typeof value === 'string' && value.endsWith("Hours")) {
+        return value.replace("Hours", "Hrs");
+      } else {
+        return value.toString();
+      }
+    }
+     },
     {
       id: 'notification',
       field: 'unReadMessages',
@@ -144,6 +153,7 @@ const ClientJobList = () => {
       maxWidth: 40,
       cssClass: 'text-primary',
       onCellClick: (_e: any, args: OnEventArgs) => {
+        setShowNotification(args.dataContext)
         getNotifications(args.dataContext.id);
       },
     },
@@ -153,12 +163,17 @@ const ClientJobList = () => {
       field: 'statusName',
       maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
+        
+       
         if(value == 'Pending')
-          return `<div class="btn btn-default btn-xs">Action <i class="fa fa-caret-down"></i></div>`;
+          return `<div class="btn btn-default btn-xs" >Action <i class="fa fa-caret-down"></i></div>`;  
         else
-        return '';
+          return '';
       },
       cellMenu: {
+        menuUsabilityOverride: function (args) {
+          return (args.dataContext.statusName === 'Pending'); 
+        },
         //commandTitle: 'Commands',
         // width: 200,
         commandItems: [
@@ -461,7 +476,7 @@ const ClientJobList = () => {
         </Modal.Footer>
       </Modal>
 
-      <NorificationModal title='alert' okBottonText='OK' cancelBottonText='Close' ref={childRef} reloadGridData={reloadGridData}></NorificationModal>
+      <NorificationModal title='alert' okBottonText='OK' cancelBottonText='Close' details={showNotification} ref={childRef} reloadGridData={reloadGridData}></NorificationModal>
     </>
 
   );

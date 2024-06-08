@@ -13,6 +13,7 @@ export interface IDialog {
   title: string;
   okBottonText?: string;
   cancelBottonText?: string;
+  details?:Object | any;
   reloadGridData: Function
 }
 
@@ -135,6 +136,17 @@ const NotificationModal = forwardRef((props: IDialog, ref) => {
           <Modal.Title>Job Notifications</Modal.Title>
         </Modal.Header>
         <Modal.Body className='p-1' style={{ overflowX: 'hidden' }}>
+        <div className="row p-2 ">
+          <div className="px-2">
+          Job Id : {props?.details?.jobId}
+          </div>
+          <div className="px-2">
+          FIle Name : {props?.details?.name}
+          </div>
+          <div  className="px-2">
+          Client Name : {props?.details?.userName}
+          </div>
+          </div>
           <div className="row p-2">
             <div className="col-md-10">
               <FormControl placeholder="Please enter comments" name="comments" as="textarea" rows={3} value={saveForm.values.comments} onChange={saveForm.handleChange} />
