@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
-
+import { useNavigate } from 'react-router-dom';
+import { refreshToken } from '@app/utils/oidc-providers';
+import IUser from '@app/store/Models/User';
+import { AxiosResponse } from 'axios';
+import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { setAuthentication } from '@store/reducers/auth';
 
 const SessionTimeout = ({ timeoutInSeconds, onTimeout }: { timeoutInSeconds: number; onTimeout: () => void }) => {
   const [countdown, setCountdown] = useState(timeoutInSeconds);
   const [showDialog, setShowDialog] =  useState(false);
   const timeout = timeoutInSeconds;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if(location.href.indexOf('login') == -1){
       const timer = setTimeout(() => {
@@ -22,8 +31,6 @@ const SessionTimeout = ({ timeoutInSeconds, onTimeout }: { timeoutInSeconds: num
         if (timeoutInSeconds == Math.round(timeout * .30))
           setShowDialog(true);
       }, 1000);
-
-      
 
       // Reset the timer when the user interacts
       const resetTimer = () => {
@@ -43,10 +50,22 @@ const SessionTimeout = ({ timeoutInSeconds, onTimeout }: { timeoutInSeconds: num
   }, [timeoutInSeconds, onTimeout]);
 
   function handleLogout(){
-    console.log('logout');
+    localStorage.removeItem('authentication');
+    navigate('/login');
   }
-  function handleExtend(){
-    console.log('extend');
+  async function handleExtend(){
+    try {
+      const user = JSON.parse(localStorage.getItem('authentication')??'') as IUser
+      const response = await refreshToken(user);
+
+      const newUser = (response as AxiosResponse).data as IUser;
+     
+      dispatch(setAuthentication(newUser));
+      setShowDialog(false);
+    } catch (error: any) {
+      
+      toast.error(error.message || 'Failed');
+    }
   }
   
   return (

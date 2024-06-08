@@ -98,3 +98,27 @@ export const getAuthStatus = () => {
     }
   });
 };
+
+
+export const refreshToken = (user: User) => {
+  
+  return new Promise(async (res, rej) => {
+    ApiService.requests.post('Login/refresh-token', user)
+    .then((response) => {
+      if(response.isSuccess)
+      {
+        response.data.isAuthenticated = true;
+        localStorage.removeItem('authentication')
+        localStorage.setItem(
+          'authentication',
+          JSON.stringify(response.data)
+        );
+        return res(response);
+      }
+      else
+      {
+        return rej({ message: response.message });
+      }
+    })
+  });
+};
