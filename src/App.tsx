@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import Main from '@modules/main/Main';
 import Login from '@modules/login/Login';
 import Register from '@modules/register/Register';
@@ -28,6 +28,7 @@ import {
 import Intake from './pages/intake';
 import ClientJobList from './pages/client/ClientJobList';
 import ClientsList from './pages/admin/clients';
+import SessionTimeout from './components/session-timeout/SessionTimeout';
 
 const { VITE_NODE_ENV } = import.meta.env;
 
@@ -81,6 +82,12 @@ const App = () => {
     }
   }, [location]);
 
+  const handleSessionTimeout = () => {
+    // Perform logout or other actions
+    toast.warn('Session timed out');
+    navigate('/login');
+  };
+
   if (isAppLoading) {
     return <p>Loading</p>;
   }
@@ -123,7 +130,9 @@ const App = () => {
         rtl={false}
         pauseOnHover
       />
+      <SessionTimeout timeoutInSeconds={28800} onTimeout={handleSessionTimeout} />
     </>
+    
   );
 };
 
