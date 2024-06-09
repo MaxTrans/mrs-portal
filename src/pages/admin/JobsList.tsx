@@ -261,10 +261,18 @@ const JobsList = () => {
       name: '',
       field: 'id',
       maxWidth: 100,
-      formatter: () => `<div class="btn btn-default btn-xs">Action <i class="fa fa-caret-down"></i></div>`,
+      formatter: (row, cell, value, colDef, dataContext) => {
+        if(dataContext.statusName !== 'Pending')
+          return `<div class="btn btn-default btn-xs" >Action <i class="fa fa-caret-down"></i></div>`;  
+        else
+          return '';
+      },
       cellMenu: {
         //commandTitle: 'Commands',
         // width: 200,
+        menuUsabilityOverride: function (args) {
+          return (args.dataContext.statusName !== 'Pending'); 
+        },
         commandItems: [
           {
             command: 'upload',

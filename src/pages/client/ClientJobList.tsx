@@ -166,8 +166,6 @@ const ClientJobList = () => {
       field: 'statusName',
       maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
-        
-       
         if(value == 'Pending')
           return `<div class="btn btn-default btn-xs" >Action <i class="fa fa-caret-down"></i></div>`;  
         else
