@@ -48,9 +48,9 @@ export const getJobs = (userId:string, JobStatus: string, createdBy: string, fil
     });
   };
 
-  export const mergeJobs = (jobIds:any[], userId:string, companyId:string) => {
+  export const mergeJobs = (jobIds:any[], userId:string, createdBy:string, companyId:string) => {
     return new Promise(async (res, rej) => {
-      ApiService.requests.post(`Job/mergejobs`, { jobIds: jobIds, createdBy: userId, companyId: companyId })
+      ApiService.requests.post(`Job/mergejobs`, { jobIds: jobIds, userId: userId, createdBy: createdBy, companyId: companyId })
       .then((response) => {
         if(response.isSuccess)
         {

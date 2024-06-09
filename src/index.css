@@ -140,6 +140,12 @@
     border-radius: 50%;
     z-index: 5001;
 }
+
+.react-datepicker-wrapper
+{
+  width: 100%;
+}
+
 @keyframes rotate {
     0% {
         transform: rotate(0deg);
@@ -148,3 +154,4 @@
         transform: rotate(360deg);
     }
 }
+

@@ -18,6 +18,9 @@ import { useNavigate } from "react-router-dom";
 import { blob } from 'stream/consumers';
 import { faL } from '@fortawesome/free-solid-svg-icons';
 import confirm from '@app/components/confirm/confirmService';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import moment from 'moment';
 
 //let reactGrid!: SlickgridReactInstance;
 let grid1!: SlickGrid;
@@ -32,8 +35,8 @@ const ClientJobList = () => {
   const [mergeFileName, setMergeFileName] = useState('');
   const [selectedStatus, setStatusFilter] = useState('');
   const [filename, setFilename] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [fromDate, setFromDate] = useState<Date>();
+  const [toDate, setToDate] = useState<Date>();
   const [initialLoad, setInitialLoad] = useState(true);
   const [showNotification, setShowNotification] = useState(false);
 //  const [mergeFileName, setMergeFileName] = useState('');
@@ -225,7 +228,9 @@ const ClientJobList = () => {
 
   const loadData = (isreload:boolean) => {
     setLoader(true);
-    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate, initialLoad).then((response: any) => {
+    let fDate = fromDate ? moment(fromDate).format('MM-DD-YYYY') : '';
+    let tDate = toDate ? moment(toDate).format('MM-DD-YYYY') : '';
+    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fDate, tDate, initialLoad).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
           item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
@@ -426,15 +431,15 @@ const ClientJobList = () => {
 
                 <div className="col-md-2">
                   <div className="form-group">
-                      <label>From Date </label>
-                      <input className="form-control" type='date' name='txtFromDate' onChange={(e) => setFromDate(e.target.value)} value={fromDate} />
+                      <label>From Date </label><br></br>
+                      <DatePicker id="txtFromDate" name='txtFromDate' onChange={(date:any) => setFromDate(date)}  selected={fromDate}  className="form-control" dateFormat="MM/dd/yyyy"/>
                   </div>
                 </div>  
 
                 <div className="col-md-2">
                   <div className="form-group">
-                      <label>To Date </label>
-                      <input className="form-control" type='date' name='txtToDate' onChange={(e) => setToDate(e.target.value)} value={toDate} />
+                      <label>To Date </label><br></br>
+                      <DatePicker id="txtToDate" name='txtToDate' onChange={(date:any) => setToDate(date)}  selected={toDate}  className="form-control" dateFormat="MM/dd/yyyy"/>
                   </div>
                 </div>  
                 <div className="col-md-2">

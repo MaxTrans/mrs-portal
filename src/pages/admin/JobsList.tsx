@@ -20,6 +20,11 @@ import DownloadZipService from '@app/services/downloadZipService';
 import ApiService from '@app/services/Api.service';
 import { AxiosResponse } from 'axios';
 import { faL } from '@fortawesome/free-solid-svg-icons';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from 'path';
+import moment from 'moment';
+
 
 interface Props { }
 
@@ -52,8 +57,8 @@ const JobsList = () => {
   const [selectedStatus, setStatusFilter] = useState('');
   const [selectedClient, setClientFilter] = useState('');
   const [filename, setFilename] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [fromDate, setFromDate] = useState<Date>();
+  const [toDate, setToDate] = useState<Date>();
   const [initialLoad, setInitialLoad] = useState(true);
   const [showNotification, setShowNotification] = useState();
 
@@ -123,7 +128,7 @@ const JobsList = () => {
           setFiles(args.dataContext.files);
           setMergeFileName(args.dataContext.name)
           //handleShow();
-          downloadZip();
+          downloadZip(args.dataContext.files, args.dataContext.name);
         }
         else {
           let fileInfo: any = args.dataContext.files[0];
@@ -148,33 +153,60 @@ const JobsList = () => {
     // { id: 'l3User', name: 'L3 User', field: 'l3User', sortable: true, maxWidth: 100 },
     
     
+    // {
+    //   id: 'uploadFiles', name: 'FILES <i class="fa fa-upload text-success ml-1" aria-hidden="true"></i>', field: 'uploadFiles', sortable: true, minWidth:100,
+    //   formatter: (row, cell, value, colDef, dataContext) => {
+    //     if (value.length == 0)
+    //       return '';
+    //     else if(value.length == 1)
+    //     {
+    //       let icon =  getFileIcon(value[0].FileExtension);
+    //       return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
+    //     }
+    //     else
+    //     return '<a  target="_blank" href="#">View Files</a>';
+
+    //   },
+    //   onCellClick: (e: Event, args: OnEventArgs) => {
+    //     console.log(args.dataContext);
+    //     if (args.dataContext.uploadFiles.length > 1) {
+    //       setFiles(args.dataContext.uploadFiles);
+    //       setMergeFileName('uploadfiles');
+    //       handleShow();
+    //     }
+    //     else {
+    //       let fileInfo: any = args.dataContext.uploadFiles[0];
+    //       //window.open(fileInfo.SourceFilePath,'_blank');
+    //       downloadFile(fileInfo);
+    //     }
+    //     updateJobStatus(args.dataContext.id,'In Progress');
+    //   }
+    // },
     {
-      id: 'uploadFiles', name: 'FILES <i class="fa fa-upload text-success ml-1" aria-hidden="true"></i>', field: 'uploadFiles', sortable: true, minWidth:100,
+      id: 'uploadFiles', name: 'FILES <i class="fa fa-download text-success ml-1" aria-hidden="true"></i>', field: 'uploadFiles', sortable: true, maxWidth: 100,
       formatter: (row, cell, value, colDef, dataContext) => {
         if (value.length == 0)
           return '';
-        else if(value.length == 1)
-        {
-          let icon =  getFileIcon(value[0].FileExtension);
-          return value.length > 0 ? `<i class="fa ${icon}" aria-hidden="true"></i> <a href="#" class="pointer">${value[0].FileName}</a>` : '';
-        }
-        else
-        return '<a  target="_blank" href="#">View Files</a>';
+        else{
+          
+          let content = '';
+          if(value)
+          value.forEach((file:any) => {
+              let fileicon = getFileIcon(file.FileExtension);
+              content += `<i class="fa ${fileicon} fa-2 pointer" aria-hidden="true" title="${file.FileName}" data-id="${file.Id}"></i>&nbsp;`;
+          });
 
+          return content;
+        }
+          
       },
-      onCellClick: (e: Event, args: OnEventArgs) => {
-        console.log(args.dataContext);
-        if (args.dataContext.uploadFiles.length > 1) {
-          setFiles(args.dataContext.uploadFiles);
-          setMergeFileName('uploadfiles');
-          handleShow();
+      onCellClick: (e: any, args: OnEventArgs) => {
+        let fileid = e.target.attributes['data-id'];
+        if(fileid.value){
+          let fileinfo = args.dataContext.uploadFiles.find((item:any) => item.Id == fileid.value);
+          downloadFile(fileinfo);
         }
-        else {
-          let fileInfo: any = args.dataContext.uploadFiles[0];
-          //window.open(fileInfo.SourceFilePath,'_blank');
-          downloadFile(fileInfo);
-        }
-        updateJobStatus(args.dataContext.id,'In Progress');
+        //updateJobStatus(args.dataContext.id,'Downloaded');
       }
     },
     { id: 'statusName', name: 'STATUS', field: 'statusName', maxWidth: 100 },
@@ -448,7 +480,9 @@ const JobsList = () => {
 
   const loadData = (isreload:boolean) => {
     setLoader(true);
-    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fromDate, toDate, initialLoad).then((response: any) => {
+    let fDate = fromDate ? moment(fromDate).format('MM-DD-YYYY') : '';
+    let tDate = toDate ? moment(toDate).format('MM-DD-YYYY') : '';
+    JobService.getJobs(user.id, selectedStatus, selectedClient, filename, fDate, tDate, initialLoad).then((response: any) => {
       if (response.isSuccess) {
         let data = response.data.map((item: any) => {
           item.files = item.jobFiles ? JSON.parse(item.jobFiles).JobFiles.filter((item:any) => !item.IsUploadFile) : [];
@@ -480,7 +514,7 @@ const JobsList = () => {
       setLoader(true);
       let userid = rows[0].createdBy;
       let selectedIds = rows.map((sel:any) => sel.id) || [];
-      JobService.mergeJobs(selectedIds, userid, user.companyId).then((response: any) => {
+      JobService.mergeJobs(selectedIds, userid, user.id, user.companyId).then((response: any) => {
         if (response.isSuccess) {
           toast.success(`Jobs Merged successfully.`);
           search();
@@ -531,12 +565,15 @@ const JobsList = () => {
     });
   };
 
-  function downloadZip(){
+  function downloadZip(files:any, fileName:string){
     setLoader(true);
-      DownloadZipService.createZip(fileList, mergeFileName, function() {
+      DownloadZipService.createZip(files, fileName, function() {
         setLoader(false);
       });
   }
+  useEffect(() => {
+    loadData(false);
+  }, [initialLoad]);
 
   const updateJobStatus = (jobId:string, status: string) => {
     JobService.updateJobStatus(jobId, user.id, status).then((response: any) => {
@@ -645,15 +682,15 @@ const JobsList = () => {
 
                 <div className="col-md-2">
                   <div className="form-group">
-                      <label>From Date </label>
-                      <input  className="form-control" type='date' name='txtFromDate' onChange={(e) => setFromDate(e.target.value)} value={fromDate} />
+                      <label>From Date </label><br></br>
+                      <DatePicker id="txtFromDate" name='txtFromDate' onChange={(date:any) => setFromDate(date)}  selected={fromDate}  className="form-control" dateFormat="MM/dd/yyyy"/>
                   </div>
                 </div>  
 
                 <div className="col-md-2">
                   <div className="form-group">
                       <label>To Date </label>
-                      <input  className="form-control" type='date' name='txtToDate' onChange={(e) => setToDate(e.target.value)} value={toDate} />
+                      <DatePicker id="txtToDate" name='txtToDate' onChange={(date:any) => setToDate(date)}  selected={toDate}  className="form-control" dateFormat="MM/dd/yyyy"/>
                   </div>
                 </div> 
 
@@ -697,7 +734,7 @@ const JobsList = () => {
           <Button variant="secondary" onClick={handleClose} className='btn-sm'>
             Close
           </Button>
-          <Button variant="primary" onClick={downloadZip} className='btn-sm'>
+          <Button variant="primary" className='btn-sm'>
             Download Zip
           </Button>
         </Modal.Footer>
