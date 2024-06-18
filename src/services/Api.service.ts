@@ -48,7 +48,7 @@ axios.interceptors.response
 
 const requests = {
     get: (url: string, httpOptions : AxiosRequestConfig = {} ) => {
-        return axios.get(url).then(responseData)
+        return axios.get(url, httpOptions).then(responseData)
     },
     post:(url: string, data: any) => axios.post(url, data).then(responseData),
     put:(url: string, data: any) => axios.put(url, data).then(responseData),
