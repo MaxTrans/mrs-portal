@@ -1,31 +1,47 @@
-import DahsboardService from '@app/services/dashboardservice';
+import React, { useEffect, useState } from 'react';
 import { ContentHeader } from '@components';
-import { useEffect, useState } from 'react';
-import IDashboard from '@app/store/Models/Dashboard';
-import store from '../store/store';
-import IUser from "@app/store/Models/User";
-import { useSelector, useDispatch } from "react-redux"; 
+import axios from 'axios';
 
-const Dashboard = () => {
-  const [ dashboardList, setDashboardList ] = useState<IDashboard[]>([]);
-  const user = useSelector((state: IUser) => store.getState().auth);
+// interface DashboardData {
+//   pendingJobsCount: number;
+//   completedJobsCount: number;
+//   totalClientsCount: number;
+// }
+
+// Define types for the authentication data
+interface Authentication {
+  loginName: string;
+}
+const Dashboard: React.FC = () => {
   console.log(import.meta.env);
+  const [dashboardData, setDashboardData] = useState({
+    pendingJobsCount: 0,
+    completedJobsCount: 0,
+    totalClientsCount: 0,
+  });
+  const authData = localStorage.getItem('authentication');
+  const username: Authentication = authData ? JSON.parse(authData) : { loginName: '' };
+  console.log(username, "username");
 
   useEffect(() => {
-
-    DahsboardService.getDashboardList(user.id, user.roleName).then((response: any) => {
-        if(response.isSuccess)
-        {
-            const list = response.data as IDashboard[];
-            setDashboardList(list);
-            console.log(dashboardList);
-        }
-    })
-    .catch((e: any) => {
-      console.log(e);
-    });
-
-  },[]);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/dashboard?username=${username.loginName}`);
+        const { ClientsCount, CompletedJobsCount, PendingJobsCount } = response.data.data;
+        console.log(response.data.ata)
+        setDashboardData({
+          pendingJobsCount: PendingJobsCount,
+          completedJobsCount: CompletedJobsCount,
+          totalClientsCount: ClientsCount
+        });
+        
+      } catch (error: any) {
+        console.error('Error fetching data:', error.response ? error.response.data.message : error.message);
+      }
+    };
+    console.log(dashboardData)
+    fetchData();
+  }, [username.loginName]);
 
   return (
     <div>
@@ -34,26 +50,62 @@ const Dashboard = () => {
       <section className="content">
         <div className="container-fluid">
           <div className="row">
-            {
-              dashboardList.map((obj: IDashboard, index: number) => 
-
-                (
-                  <div className="col-lg-3 col-6">
-                    <div className="small-box" style={{ backgroundColor: obj.color }}>
-                      <div className="inner">
-                        <h3>{obj.recordCount}</h3>
-                        <p>{obj.title}</p>
-                      </div>
-                      <div className="icon">
-                          <i className={obj.icon} />
-                      </div>
-                      <a href="/" className="small-box-footer">
-                        More info <i className="fas fa-arrow-circle-right" />
-                      </a>
-                  </div>
+            <div className="col-lg-3 col-6">
+              <div className="small-box bg-info">
+                <div className="inner">
+                  <h3>{dashboardData.pendingJobsCount}</h3>
+                  <p>Pending Jobs</p>
                 </div>
-                ))
-            }
+                <div className="icon">
+                  <i className="ion ion-document" />
+                </div>
+                <a href="/" className="small-box-footer">
+                  More info <i className="fas fa-arrow-circle-right" />
+                </a>
+              </div>
+            </div>
+            <div className="col-lg-3 col-6">
+              <div className="small-box bg-success">
+                <div className="inner">
+                  <h3>{dashboardData.completedJobsCount}</h3>
+                  <p>Completed Jobs</p>
+                </div>
+                <div className="icon">
+                  <i className="ion ion-document-text" />
+                </div>
+                <a href="/" className="small-box-footer">
+                  More info <i className="fas fa-arrow-circle-right" />
+                </a>
+              </div>
+            </div>
+            <div className="col-lg-3 col-6">
+              <div className="small-box bg-warning">
+                <div className="inner">
+                  <h3>{dashboardData.totalClientsCount}</h3>
+                  <p>Clients</p>
+                </div>
+                <div className="icon">
+                  <i className="ion ion-person-stalker" />
+                </div>
+                <a href="/" className="small-box-footer">
+                  More info <i className="fas fa-arrow-circle-right" />
+                </a>
+              </div>
+            </div>
+            <div className="col-lg-3 col-6">
+              <div className="small-box bg-danger">
+                <div className="inner">
+                  <h3>1</h3>
+                  <p>Employees</p>
+                </div>
+                <div className="icon">
+                  <i className="ion ion-person-stalker" />
+                </div>
+                <a href="/" className="small-box-footer">
+                  More info <i className="fas fa-arrow-circle-right" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
