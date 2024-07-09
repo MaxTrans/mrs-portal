@@ -25,6 +25,9 @@ const ClientsList = () => {
     const dispatch = useDispatch();
     const [reactGrid, setGrid] = useState<SlickgridReactInstance>();
     const [dataset, setData] = useState<any[]>([]);
+    let data=dataset.map(item=>{
+      return {...item,id:item.Id,clientName:item.ClientName,lastName:item.LastName,firstName:item.FirstName,email:item.Email,loginName:item.LoginName,createdDateTime:item.CreatedDateTime,defaultTAT:item.DefaultTAT}
+    })
     const navigate = useNavigate();
     const MenuCommandItems: MenuCommandItem[] = Array<MenuCommandItem>();
 
@@ -120,7 +123,7 @@ const ClientsList = () => {
                     <SlickgridReact gridId="grid1"
                       columnDefinitions={columns}
                       gridOptions={gridOptions!}
-                      dataset={dataset}
+                      dataset={data}
                       onReactGridCreated={e => { reactGridReady(e.detail); }}
                     />
                   </div>

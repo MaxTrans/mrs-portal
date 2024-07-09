@@ -160,6 +160,14 @@ export default function Upload(){
                         }
                         <Form.Group as={Row} className="mb-3">
                             <div className="col-sm-2">
+                                Upload: 
+                            </div>
+                            <Col sm="10">
+                                <UppyUpload filePreference={''} customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <div className="col-sm-2">
                                 TAT: 
                             </div>
                             <Col sm="6">
@@ -178,14 +186,6 @@ export default function Upload(){
                             </div>
                             <Col sm="6">
                                 <FormControl placeholder="Please enter comments" name="comment"  as="textarea" rows={3} value={formik.values.comment} onChange={formik.handleChange}/>
-                            </Col>
-                        </Form.Group>
-                        <Form.Group as={Row} className="mb-3">
-                            <div className="col-sm-2">
-                                Upload: 
-                            </div>
-                            <Col sm="10">
-                                <UppyUpload filePreference={''} customFilename={formik.values.mergeFilename} onCompleteCallback={formik.handleSubmit} onBeforeUpload={() => formik.validateForm().then((errors) => displayErrors(errors) ) }/>
                             </Col>
                         </Form.Group>
                         <Button variant="secondary" type="button" onClick={() => { if (location.state) { navigate('/client-jobs') } else { setShowForm(false); dispatch(removeUploadedFiles()); formik.resetForm(); } }}>
